@@ -1,0 +1,13 @@
+controller,tier,condition_group,n,success_rate,ci95_low,ci95_high
+A_baseline,dense,clean,50,0.08,0.02,0.16
+A_baseline,dense,faulty,300,0.09,0.06,0.12333333333333334
+A_baseline,sparse,clean,50,0.2,0.1,0.32
+A_baseline,sparse,faulty,300,0.15,0.11,0.19333333333333333
+B_handtuned_flc,dense,clean,50,0.06,0.0,0.14
+B_handtuned_flc,dense,faulty,300,0.043333333333333335,0.023333333333333334,0.07
+B_handtuned_flc,sparse,clean,50,0.1,0.02,0.2
+B_handtuned_flc,sparse,faulty,300,0.09666666666666666,0.06333333333333334,0.13
+B_handtuned_flc_fault_aware,dense,clean,50,0.08,0.02,0.16
+B_handtuned_flc_fault_aware,dense,faulty,300,0.05,0.02666666666666667,0.07333333333333333
+B_handtuned_flc_fault_aware,sparse,clean,50,0.14,0.04,0.24
+B_handtuned_flc_fault_aware,sparse,faulty,300,0.10666666666666667,0.07333333333333333,0.14333333333333334

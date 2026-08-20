@@ -1,0 +1,9 @@
+numpy
+scipy
+scikit-learn
+joblib
+matplotlib
+pandas
+tabulate
+pymoo
+pygame

@@ -1,0 +1,7 @@
+controller,tier,n_clean,n_faulty,clean_success,faulty_success,faulty_outperforms_clean,U,p_value,rank_biserial_effect_size,nan_free
+A_baseline,dense,50,300,0.08,0.09,True,7425.0,0.8192203516243513,0.010000000000000009,True
+A_baseline,sparse,50,300,0.2,0.15,False,7875.0,0.3697584764053591,-0.050000000000000044,True
+B_handtuned_flc,dense,50,300,0.06,0.043333333333333335,False,7625.0,0.6033723701295275,-0.016666666666666607,True
+B_handtuned_flc,sparse,50,300,0.1,0.09666666666666666,False,7525.0,0.9425163938963652,-0.0033333333333334103,True
+B_handtuned_flc_fault_aware,dense,50,300,0.08,0.05,False,7725.0,0.3877967433144074,-0.030000000000000027,True
+B_handtuned_flc_fault_aware,sparse,50,300,0.14,0.10666666666666667,False,7750.0,0.48948846215274266,-0.03333333333333344,True

@@ -1,0 +1,642 @@
+[
+  {
+    "episode_id": 0,
+    "tier": "sparse",
+    "seed": 851852,
+    "success": false,
+    "collision": true,
+    "n_steps": 50
+  },
+  {
+    "episode_id": 1,
+    "tier": "dense",
+    "seed": 178934,
+    "success": false,
+    "collision": true,
+    "n_steps": 19
+  },
+  {
+    "episode_id": 2,
+    "tier": "sparse",
+    "seed": 26417,
+    "success": false,
+    "collision": true,
+    "n_steps": 47
+  },
+  {
+    "episode_id": 3,
+    "tier": "dense",
+    "seed": 639913,
+    "success": false,
+    "collision": true,
+    "n_steps": 18
+  },
+  {
+    "episode_id": 4,
+    "tier": "sparse",
+    "seed": 365477,
+    "success": false,
+    "collision": true,
+    "n_steps": 26
+  },
+  {
+    "episode_id": 5,
+    "tier": "dense",
+    "seed": 467268,
+    "success": false,
+    "collision": true,
+    "n_steps": 64
+  },
+  {
+    "episode_id": 6,
+    "tier": "sparse",
+    "seed": 79828,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 7,
+    "tier": "dense",
+    "seed": 370500,
+    "success": false,
+    "collision": true,
+    "n_steps": 148
+  },
+  {
+    "episode_id": 8,
+    "tier": "sparse",
+    "seed": 643451,
+    "success": false,
+    "collision": true,
+    "n_steps": 12
+  },
+  {
+    "episode_id": 9,
+    "tier": "dense",
+    "seed": 354917,
+    "success": false,
+    "collision": true,
+    "n_steps": 45
+  },
+  {
+    "episode_id": 10,
+    "tier": "sparse",
+    "seed": 831061,
+    "success": false,
+    "collision": true,
+    "n_steps": 49
+  },
+  {
+    "episode_id": 11,
+    "tier": "dense",
+    "seed": 790518,
+    "success": false,
+    "collision": true,
+    "n_steps": 96
+  },
+  {
+    "episode_id": 12,
+    "tier": "sparse",
+    "seed": 704427,
+    "success": false,
+    "collision": true,
+    "n_steps": 54
+  },
+  {
+    "episode_id": 13,
+    "tier": "dense",
+    "seed": 905143,
+    "success": false,
+    "collision": true,
+    "n_steps": 104
+  },
+  {
+    "episode_id": 14,
+    "tier": "sparse",
+    "seed": 721208,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 15,
+    "tier": "dense",
+    "seed": 177353,
+    "success": false,
+    "collision": true,
+    "n_steps": 60
+  },
+  {
+    "episode_id": 16,
+    "tier": "sparse",
+    "seed": 858454,
+    "success": false,
+    "collision": true,
+    "n_steps": 76
+  },
+  {
+    "episode_id": 17,
+    "tier": "dense",
+    "seed": 652784,
+    "success": false,
+    "collision": true,
+    "n_steps": 50
+  },
+  {
+    "episode_id": 18,
+    "tier": "sparse",
+    "seed": 98466,
+    "success": false,
+    "collision": true,
+    "n_steps": 51
+  },
+  {
+    "episode_id": 19,
+    "tier": "dense",
+    "seed": 298302,
+    "success": false,
+    "collision": true,
+    "n_steps": 11
+  },
+  {
+    "episode_id": 20,
+    "tier": "sparse",
+    "seed": 165673,
+    "success": false,
+    "collision": true,
+    "n_steps": 44
+  },
+  {
+    "episode_id": 21,
+    "tier": "dense",
+    "seed": 966962,
+    "success": false,
+    "collision": true,
+    "n_steps": 14
+  },
+  {
+    "episode_id": 22,
+    "tier": "sparse",
+    "seed": 727960,
+    "success": false,
+    "collision": true,
+    "n_steps": 236
+  },
+  {
+    "episode_id": 23,
+    "tier": "dense",
+    "seed": 919850,
+    "success": false,
+    "collision": true,
+    "n_steps": 44
+  },
+  {
+    "episode_id": 24,
+    "tier": "sparse",
+    "seed": 282499,
+    "success": false,
+    "collision": true,
+    "n_steps": 71
+  },
+  {
+    "episode_id": 25,
+    "tier": "dense",
+    "seed": 635870,
+    "success": false,
+    "collision": true,
+    "n_steps": 46
+  },
+  {
+    "episode_id": 26,
+    "tier": "sparse",
+    "seed": 604174,
+    "success": false,
+    "collision": true,
+    "n_steps": 62
+  },
+  {
+    "episode_id": 27,
+    "tier": "dense",
+    "seed": 752732,
+    "success": false,
+    "collision": true,
+    "n_steps": 51
+  },
+  {
+    "episode_id": 28,
+    "tier": "sparse",
+    "seed": 118016,
+    "success": false,
+    "collision": true,
+    "n_steps": 114
+  },
+  {
+    "episode_id": 29,
+    "tier": "dense",
+    "seed": 515153,
+    "success": false,
+    "collision": true,
+    "n_steps": 49
+  },
+  {
+    "episode_id": 30,
+    "tier": "sparse",
+    "seed": 644543,
+    "success": false,
+    "collision": true,
+    "n_steps": 63
+  },
+  {
+    "episode_id": 31,
+    "tier": "dense",
+    "seed": 825895,
+    "success": false,
+    "collision": true,
+    "n_steps": 48
+  },
+  {
+    "episode_id": 32,
+    "tier": "sparse",
+    "seed": 656086,
+    "success": false,
+    "collision": true,
+    "n_steps": 43
+  },
+  {
+    "episode_id": 33,
+    "tier": "dense",
+    "seed": 448380,
+    "success": false,
+    "collision": true,
+    "n_steps": 11
+  },
+  {
+    "episode_id": 34,
+    "tier": "sparse",
+    "seed": 460134,
+    "success": false,
+    "collision": true,
+    "n_steps": 22
+  },
+  {
+    "episode_id": 35,
+    "tier": "dense",
+    "seed": 338812,
+    "success": false,
+    "collision": true,
+    "n_steps": 49
+  },
+  {
+    "episode_id": 36,
+    "tier": "sparse",
+    "seed": 157239,
+    "success": false,
+    "collision": true,
+    "n_steps": 187
+  },
+  {
+    "episode_id": 37,
+    "tier": "dense",
+    "seed": 277899,
+    "success": false,
+    "collision": true,
+    "n_steps": 50
+  },
+  {
+    "episode_id": 38,
+    "tier": "sparse",
+    "seed": 146127,
+    "success": false,
+    "collision": true,
+    "n_steps": 46
+  },
+  {
+    "episode_id": 39,
+    "tier": "dense",
+    "seed": 226333,
+    "success": false,
+    "collision": true,
+    "n_steps": 43
+  },
+  {
+    "episode_id": 40,
+    "tier": "sparse",
+    "seed": 853797,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 41,
+    "tier": "dense",
+    "seed": 525816,
+    "success": false,
+    "collision": true,
+    "n_steps": 56
+  },
+  {
+    "episode_id": 42,
+    "tier": "sparse",
+    "seed": 91600,
+    "success": false,
+    "collision": true,
+    "n_steps": 16
+  },
+  {
+    "episode_id": 43,
+    "tier": "dense",
+    "seed": 430912,
+    "success": false,
+    "collision": true,
+    "n_steps": 48
+  },
+  {
+    "episode_id": 44,
+    "tier": "sparse",
+    "seed": 270785,
+    "success": false,
+    "collision": true,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 45,
+    "tier": "dense",
+    "seed": 663180,
+    "success": false,
+    "collision": true,
+    "n_steps": 48
+  },
+  {
+    "episode_id": 46,
+    "tier": "sparse",
+    "seed": 830299,
+    "success": false,
+    "collision": true,
+    "n_steps": 35
+  },
+  {
+    "episode_id": 47,
+    "tier": "dense",
+    "seed": 12840,
+    "success": false,
+    "collision": true,
+    "n_steps": 34
+  },
+  {
+    "episode_id": 48,
+    "tier": "sparse",
+    "seed": 465818,
+    "success": false,
+    "collision": true,
+    "n_steps": 34
+  },
+  {
+    "episode_id": 49,
+    "tier": "dense",
+    "seed": 447701,
+    "success": false,
+    "collision": true,
+    "n_steps": 34
+  },
+  {
+    "episode_id": 50,
+    "tier": "sparse",
+    "seed": 990701,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 51,
+    "tier": "dense",
+    "seed": 365180,
+    "success": false,
+    "collision": true,
+    "n_steps": 33
+  },
+  {
+    "episode_id": 52,
+    "tier": "sparse",
+    "seed": 165218,
+    "success": false,
+    "collision": true,
+    "n_steps": 44
+  },
+  {
+    "episode_id": 53,
+    "tier": "dense",
+    "seed": 195397,
+    "success": false,
+    "collision": true,
+    "n_steps": 41
+  },
+  {
+    "episode_id": 54,
+    "tier": "sparse",
+    "seed": 477551,
+    "success": false,
+    "collision": true,
+    "n_steps": 34
+  },
+  {
+    "episode_id": 55,
+    "tier": "dense",
+    "seed": 594865,
+    "success": false,
+    "collision": true,
+    "n_steps": 48
+  },
+  {
+    "episode_id": 56,
+    "tier": "sparse",
+    "seed": 326566,
+    "success": false,
+    "collision": true,
+    "n_steps": 125
+  },
+  {
+    "episode_id": 57,
+    "tier": "dense",
+    "seed": 435313,
+    "success": false,
+    "collision": true,
+    "n_steps": 38
+  },
+  {
+    "episode_id": 58,
+    "tier": "sparse",
+    "seed": 663280,
+    "success": false,
+    "collision": true,
+    "n_steps": 20
+  },
+  {
+    "episode_id": 59,
+    "tier": "dense",
+    "seed": 299991,
+    "success": false,
+    "collision": true,
+    "n_steps": 17
+  },
+  {
+    "episode_id": 60,
+    "tier": "sparse",
+    "seed": 964734,
+    "success": false,
+    "collision": true,
+    "n_steps": 49
+  },
+  {
+    "episode_id": 61,
+    "tier": "dense",
+    "seed": 209416,
+    "success": false,
+    "collision": true,
+    "n_steps": 17
+  },
+  {
+    "episode_id": 62,
+    "tier": "sparse",
+    "seed": 935244,
+    "success": false,
+    "collision": true,
+    "n_steps": 58
+  },
+  {
+    "episode_id": 63,
+    "tier": "dense",
+    "seed": 874624,
+    "success": false,
+    "collision": true,
+    "n_steps": 50
+  },
+  {
+    "episode_id": 64,
+    "tier": "sparse",
+    "seed": 956986,
+    "success": false,
+    "collision": true,
+    "n_steps": 49
+  },
+  {
+    "episode_id": 65,
+    "tier": "dense",
+    "seed": 797462,
+    "success": false,
+    "collision": true,
+    "n_steps": 47
+  },
+  {
+    "episode_id": 66,
+    "tier": "sparse",
+    "seed": 528718,
+    "success": false,
+    "collision": true,
+    "n_steps": 46
+  },
+  {
+    "episode_id": 67,
+    "tier": "dense",
+    "seed": 606709,
+    "success": false,
+    "collision": true,
+    "n_steps": 39
+  },
+  {
+    "episode_id": 68,
+    "tier": "sparse",
+    "seed": 206695,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 69,
+    "tier": "dense",
+    "seed": 345100,
+    "success": false,
+    "collision": true,
+    "n_steps": 24
+  },
+  {
+    "episode_id": 70,
+    "tier": "sparse",
+    "seed": 463146,
+    "success": false,
+    "collision": true,
+    "n_steps": 51
+  },
+  {
+    "episode_id": 71,
+    "tier": "dense",
+    "seed": 946819,
+    "success": false,
+    "collision": true,
+    "n_steps": 50
+  },
+  {
+    "episode_id": 72,
+    "tier": "sparse",
+    "seed": 794777,
+    "success": false,
+    "collision": true,
+    "n_steps": 29
+  },
+  {
+    "episode_id": 73,
+    "tier": "dense",
+    "seed": 563377,
+    "success": false,
+    "collision": true,
+    "n_steps": 56
+  },
+  {
+    "episode_id": 74,
+    "tier": "sparse",
+    "seed": 595057,
+    "success": false,
+    "collision": true,
+    "n_steps": 45
+  },
+  {
+    "episode_id": 75,
+    "tier": "dense",
+    "seed": 432762,
+    "success": false,
+    "collision": true,
+    "n_steps": 52
+  },
+  {
+    "episode_id": 76,
+    "tier": "sparse",
+    "seed": 419448,
+    "success": false,
+    "collision": true,
+    "n_steps": 49
+  },
+  {
+    "episode_id": 77,
+    "tier": "dense",
+    "seed": 900449,
+    "success": false,
+    "collision": true,
+    "n_steps": 35
+  },
+  {
+    "episode_id": 78,
+    "tier": "sparse",
+    "seed": 4144,
+    "success": false,
+    "collision": true,
+    "n_steps": 53
+  },
+  {
+    "episode_id": 79,
+    "tier": "dense",
+    "seed": 319341,
+    "success": false,
+    "collision": true,
+    "n_steps": 52
+  }
+]

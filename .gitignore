@@ -1,0 +1,24 @@
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Large datasets
+*.nii
+*.nii.gz
+*.npy
+*.npz
+
+# Generated experiment outputs
+results/dataset.npz
+results/*.npz
+
+# Logs
+*.log
+
+# OS / IDE
+.vscode/
+.DS_Store
+Thumbs.db
