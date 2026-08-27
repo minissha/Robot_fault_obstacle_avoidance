@@ -1,8 +1,12 @@
 """
 simulation_core.py
 
-2D differential-drive mobile robot simulator with ray-cast range sensors,
-static rectangular obstacles, and a sensor fault-injection layer.
+2D differential-drive mobile robot simulator with a fan of ray-cast range
+sensors, static rectangular obstacles, and a sensor fault-injection layer.
+
+The controller picks both a steering angle and a speed each step, and the
+robot's motion is integrated in short slices so it cannot pass through a
+thin obstacle between one step and the next.
 
 All randomness is drawn from dedicated, explicitly-seeded
 `numpy.random.default_rng` generators. No global `np.random.*` calls are
@@ -30,10 +34,49 @@ GOAL_RADIUS: float = 4.0
 ROBOT_RADIUS: float = 1.5
 
 SENSOR_RANGE: float = 100.0
-SENSOR_ANGLES_DEG: Tuple[float, float, float] = (0.0, 45.0, -45.0)  # front, left, right
+
+# Sensor fan, ordered left to right so that neighbouring indices are
+# neighbouring rays. Index 3 (0 deg) looks straight ahead.
+#
+# This used to be three rays at (0, +45, -45). That left a 45-degree gap on
+# each side of the nose and nothing at all past 45 degrees, so an obstacle
+# sitting just off the shoulder was invisible until the robot was already
+# touching it. Logging the readings at the moment of impact made it obvious:
+# the front ray still read ~37 units clear while a side ray read under 3.
+# The robot was not driving into things head on, it was scraping them.
+#
+# Eleven rays at 15-degree spacing over the forward half-plane. The spacing
+# matters as much as the count: to work out whether it can fit through a
+# gap the robot needs two rays either side of it, and at 45 degrees apart
+# it never got them.
+SENSOR_ANGLES_DEG: Tuple[float, ...] = tuple(float(a) for a in range(75, -76, -15))
+N_SENSORS: int = len(SENSOR_ANGLES_DEG)
+FRONT_INDEX: int = SENSOR_ANGLES_DEG.index(0.0)
+SENSOR_NAMES: Tuple[str, ...] = tuple(
+    "front" if a == 0.0 else f"{'left' if a > 0 else 'right'}{abs(int(a))}"
+    for a in SENSOR_ANGLES_DEG
+)
 
 MAX_STEER_DEG: float = 45.0
-ROBOT_SPEED: float = 2.0          # world units per timestep
+STEER_GAIN: float = 0.3            # commanded degrees -> actual heading change
+
+# Speed is now something the controller chooses, not a fixed constant. The
+# turn rate per step does not depend on speed, so going slower tightens the
+# turning circle: at 2.0 units/step the robot needs ~8.5 units to come
+# around, at 0.4 it needs ~1.7. Being able to slow down is what lets it get
+# out of a corner it would previously have ploughed into.
+ROBOT_SPEED: float = 2.0           # nominal / default speed
+# A differential-drive robot can spin on the spot -- that is the defining
+# thing about the platform -- and the floor here used to be 0.4, which
+# quietly forbade it. It showed up in the collision traces: five steps
+# before impact the robot still had a heading with 47 units of clear space,
+# but it was creeping forward at 0.4 the whole time it was turning, and it
+# covered the last four units before it finished the turn. Letting it stop
+# and rotate removed essentially every collision.
+MIN_SPEED: float = 0.0
+MAX_SPEED: float = 3.0
+COLLISION_SUBSTEP: float = 0.4     # move in slices no longer than this
+
 DT: float = 1.0                    # one control step == one timestep
 MAX_STEPS: int = 400
 
@@ -77,7 +120,14 @@ class Obstacle:
 # was not adjusted.
 MIN_OBSTACLE_GAP: float = 2.5 * 2.0 * ROBOT_RADIUS   # ~7.5 world units
 MAX_GEN_ATTEMPTS: int = 3000
-DENSE_OBSTACLE_RANGE: Tuple[int, int] = (12, 18)      # was 15-25 (infeasible)
+# The dense tier is supposed to be the harder one. Measured over 60 seeds it
+# was covering 5.5% of the world against the sparse tier's 6.8% -- sparse
+# has fewer obstacles but much bigger ones, so "dense" was actually the
+# roomier of the two and the tier comparison meant nothing. 22-30 puts it at
+# about 9.2%, comfortably denser, and generation still places everything it
+# is asked for. MIN_OBSTACLE_GAP is still enforced, so every gap remains
+# wide enough to drive through -- denser, not impassable.
+DENSE_OBSTACLE_RANGE: Tuple[int, int] = (22, 30)
 SPARSE_OBSTACLE_RANGE: Tuple[int, int] = (5, 8)
 
 
@@ -85,7 +135,7 @@ def generate_obstacles(tier: str, seed: int) -> List[Obstacle]:
     """
     Deterministically generate obstacles for a given tier and seed.
 
-    tier: "sparse" (5-8 obstacles) or "dense" (12-18 obstacles, see
+    tier: "sparse" (5-8 obstacles) or "dense" (22-30 obstacles, see
     MIN_OBSTACLE_GAP fix note above). Obstacles never overlap the
     start/goal regions, and never sit closer than MIN_OBSTACLE_GAP to
     another obstacle, guaranteeing every gap in the layout is wide
@@ -150,7 +200,6 @@ def _dist_rect_to_rect(a: Obstacle, b: Obstacle) -> float:
 # --------------------------------------------------------------------------
 
 FAULT_TYPES: Tuple[str, ...] = ("dropout", "bias", "noise_spike", "stale")
-SENSOR_NAMES: Tuple[str, ...] = ("front", "left", "right")
 
 
 @dataclass
@@ -376,12 +425,75 @@ def cast_ray(x: float, y: float, angle_rad: float, obstacles: List[Obstacle],
 
 def get_sensor_readings(x: float, y: float, heading_rad: float,
                          obstacles: List[Obstacle]) -> np.ndarray:
-    """Return raw [front, left, right] range readings in [0, SENSOR_RANGE]."""
-    readings = np.zeros(3, dtype=np.float64)
+    """Return raw range readings for the whole fan, in [0, SENSOR_RANGE]."""
+    readings = np.zeros(N_SENSORS, dtype=np.float64)
     for i, angle_deg in enumerate(SENSOR_ANGLES_DEG):
         angle_rad = heading_rad + math.radians(angle_deg)
         readings[i] = cast_ray(x, y, angle_rad, obstacles)
     return readings
+
+
+def get_goal_observation(x: float, y: float, heading_rad: float) -> Tuple[float, float]:
+    """
+    Goal-relative observation: (goal_distance, goal_angle_deg).
+
+    goal_distance is capped at SENSOR_RANGE, matching the sensor readings'
+    scale (so all 5 observation components share one [0, 100]-ish range
+    rather than the controller having to learn/hand-tune a second scale).
+    goal_angle_deg is the signed angle from the robot's current heading to
+    the goal direction, in degrees, using the SAME sign convention already
+    validated for steering and the left/right sensors (positive = counter-
+    clockwise = "goal is to the left"; see fuzzy_handtuned.py's sign-
+    convention check and validate_simulator.py): a controller can use
+    goal_angle_deg directly as a "steer this many degrees to head straight
+    at the goal" signal without any sign translation.
+
+    Assumed to come from the robot's own localization/odometry (a
+    standard assumption in this class of navigation problem), NOT a
+    range sensor -- so it is never passed through FaultInjector and
+    fault-injection/detection remain scoped to the range readings only,
+    unchanged.
+    """
+    dx = GOAL_POS[0] - x
+    dy = GOAL_POS[1] - y
+    goal_distance = min(SENSOR_RANGE, math.hypot(dx, dy))
+    goal_heading = math.atan2(dy, dx)
+    goal_angle_rad = math.atan2(math.sin(goal_heading - heading_rad),
+                                 math.cos(goal_heading - heading_rad))
+    return goal_distance, math.degrees(goal_angle_rad)
+
+
+OBSERVATION_DIM: int = N_SENSORS + 2
+GOAL_DIST_INDEX: int = N_SENSORS
+GOAL_ANGLE_INDEX: int = N_SENSORS + 1
+
+
+def build_full_observation(sensor_readings: np.ndarray, x: float, y: float,
+                            heading_rad: float) -> np.ndarray:
+    """The complete observation handed to every controller's predict():
+    all N_SENSORS range readings, then goal_distance and goal_angle_deg."""
+    goal_dist, goal_angle = get_goal_observation(x, y, heading_rad)
+    return np.concatenate([
+        np.asarray(sensor_readings, dtype=np.float64).ravel(),
+        np.array([goal_dist, goal_angle], dtype=np.float64),
+    ])
+
+
+def unpack_action(action) -> Tuple[float, float]:
+    """
+    Controllers return either a bare steering angle or (steering, speed).
+
+    Everything in this project returns the pair now, but accepting a plain
+    float keeps the older sensor-only controllers runnable without a
+    wrapper, which is handy when checking one against the other.
+    """
+    if isinstance(action, (tuple, list, np.ndarray)):
+        steer, speed = float(action[0]), float(action[1])
+    else:
+        steer, speed = float(action), ROBOT_SPEED
+    steer = float(np.clip(steer, -MAX_STEER_DEG, MAX_STEER_DEG))
+    speed = float(np.clip(speed, MIN_SPEED, MAX_SPEED))
+    return steer, speed
 
 
 # --------------------------------------------------------------------------
@@ -398,6 +510,7 @@ class EpisodeMetrics:
     steering_smoothness: float = 0.0   # mean abs steering-angle change (deg)
     final_goal_distance: float = 0.0
     steps: int = 0
+    mean_speed: float = 0.0
 
     def to_dict(self) -> dict:
         return {
@@ -409,6 +522,7 @@ class EpisodeMetrics:
             "steering_smoothness": self.steering_smoothness,
             "final_goal_distance": self.final_goal_distance,
             "steps": self.steps,
+            "mean_speed": self.mean_speed,
         }
 
 
@@ -416,9 +530,12 @@ class EpisodeMetrics:
 class EpisodeResult:
     metrics: EpisodeMetrics
     trajectory: List[Tuple[float, float]]
-    sensor_log: List[Tuple[float, float, float]]
+    sensor_log: List[Tuple[float, ...]]
     steering_log: List[float]
     fault_spec: Optional[FaultSpec]
+    clean_sensor_log: List[Tuple[float, ...]] = field(default_factory=list)
+    full_observation_log: List[Tuple[float, ...]] = field(default_factory=list)
+    speed_log: List[float] = field(default_factory=list)
 
 
 # --------------------------------------------------------------------------
@@ -445,6 +562,40 @@ class RobotSimulator:
                                              spec_override=spec_override,
                                              manual=manual_fault)
 
+    def _clearance(self, x: float, y: float) -> float:
+        """Distance from the robot's edge to the nearest obstacle or wall.
+
+        The old measure was the smallest of the range readings, which is
+        only the distance along whichever way a ray happened to point. With
+        a wider fan that got closer to the truth but it still misses
+        anything sitting beside the robot. This is the actual distance, so
+        the safety objective is scoring what it claims to score.
+        """
+        nearest = min(x, y, WORLD_SIZE - x, WORLD_SIZE - y)
+        for obs in self.obstacles:
+            nx = min(max(x, obs.x_min), obs.x_max)
+            ny = min(max(y, obs.y_min), obs.y_max)
+            nearest = min(nearest, math.hypot(x - nx, y - ny))
+        return max(0.0, nearest - ROBOT_RADIUS)
+
+    def _move_checked(self, x: float, y: float, heading: float,
+                       distance: float) -> Tuple[float, float, bool]:
+        """Advance along `heading` in short slices, stopping at a collision.
+
+        A single jump of up to 3 units with a robot only 3 units across can
+        pass clean through a thin obstacle without ever landing inside it,
+        which reads as a success that never happened. Splitting the step
+        makes the check continuous enough that it cannot be skipped over.
+        """
+        n = max(1, int(math.ceil(distance / COLLISION_SUBSTEP)))
+        step_len = distance / n
+        dx, dy = math.cos(heading) * step_len, math.sin(heading) * step_len
+        for _ in range(n):
+            x, y = x + dx, y + dy
+            if self._collides(x, y):
+                return x, y, True
+        return x, y, False
+
     def _collides(self, x: float, y: float) -> bool:
         if x - ROBOT_RADIUS < 0 or x + ROBOT_RADIUS > WORLD_SIZE:
             return True
@@ -464,8 +615,11 @@ class RobotSimulator:
         heading = math.atan2(GOAL_POS[1] - y, GOAL_POS[0] - x)
 
         trajectory: List[Tuple[float, float]] = [(x, y)]
-        sensor_log: List[Tuple[float, float, float]] = []
+        sensor_log: List[Tuple[float, ...]] = []
+        clean_sensor_log: List[Tuple[float, ...]] = []
         steering_log: List[float] = []
+        speed_log: List[float] = []
+        full_observation_log: List[Tuple[float, ...]] = []
 
         metrics = EpisodeMetrics()
         prev_steer = 0.0
@@ -478,27 +632,31 @@ class RobotSimulator:
             raw = get_sensor_readings(x, y, heading, self.obstacles)
             observed = self.fault_injector.apply(raw, step)
             sensor_log.append(tuple(observed.tolist()))
+            # Kept so the detector's training labels can tell whether a fault
+            # was actually changing what the robot saw at that moment.
+            clean_sensor_log.append(tuple(raw.tolist()))
 
-            min_clearance = min(min_clearance, float(np.min(raw)))
+            min_clearance = min(min_clearance, self._clearance(x, y))
 
-            steer_deg = float(controller.predict(observed))
-            steer_deg = float(np.clip(steer_deg, -MAX_STEER_DEG, MAX_STEER_DEG))
+            full_obs = build_full_observation(observed, x, y, heading)
+            full_observation_log.append(tuple(full_obs.tolist()))
+
+            steer_deg, speed = unpack_action(controller.predict(full_obs))
             steering_log.append(steer_deg)
+            speed_log.append(speed)
 
             smoothness_accum += abs(steer_deg - prev_steer)
             prev_steer = steer_deg
 
-            heading += math.radians(steer_deg) * 0.3
+            heading += math.radians(steer_deg) * STEER_GAIN
             heading = math.atan2(math.sin(heading), math.cos(heading))
 
-            new_x = x + ROBOT_SPEED * math.cos(heading) * DT
-            new_y = y + ROBOT_SPEED * math.sin(heading) * DT
-
-            path_length += math.hypot(new_x - x, new_y - y)
-            x, y = new_x, new_y
+            prev_x, prev_y = x, y
+            x, y, hit = self._move_checked(x, y, heading, speed * DT)
+            path_length += math.hypot(x - prev_x, y - prev_y)
             trajectory.append((x, y))
 
-            if self._collides(x, y):
+            if hit:
                 metrics.collision = True
                 break
 
@@ -513,6 +671,7 @@ class RobotSimulator:
         metrics.steering_smoothness = smoothness_accum / max(1, len(steering_log))
         metrics.final_goal_distance = math.hypot(GOAL_POS[0] - x, GOAL_POS[1] - y)
         metrics.steps = step + 1
+        metrics.mean_speed = float(np.mean(speed_log)) if speed_log else 0.0
 
         return EpisodeResult(
             metrics=metrics,
@@ -520,6 +679,9 @@ class RobotSimulator:
             sensor_log=sensor_log,
             steering_log=steering_log,
             fault_spec=self.fault_injector.spec,
+            full_observation_log=full_observation_log,
+            speed_log=speed_log,
+            clean_sensor_log=clean_sensor_log,
         )
 
     def step_iter(self, controller, max_steps: int = MAX_STEPS):
@@ -542,20 +704,19 @@ class RobotSimulator:
         for step in range(max_steps):
             raw = get_sensor_readings(x, y, heading, self.obstacles)
             observed = self.fault_injector.apply(raw, step)
-            min_clearance = min(min_clearance, float(np.min(raw)))
+            min_clearance = min(min_clearance, self._clearance(x, y))
 
-            steer_deg = float(controller.predict(observed))
-            steer_deg = float(np.clip(steer_deg, -MAX_STEER_DEG, MAX_STEER_DEG))
+            full_obs = build_full_observation(observed, x, y, heading)
+            steer_deg, speed = unpack_action(controller.predict(full_obs))
 
-            heading += math.radians(steer_deg) * 0.3
+            heading += math.radians(steer_deg) * STEER_GAIN
             heading = math.atan2(math.sin(heading), math.cos(heading))
 
-            new_x = x + ROBOT_SPEED * math.cos(heading) * DT
-            new_y = y + ROBOT_SPEED * math.sin(heading) * DT
-            path_length += math.hypot(new_x - x, new_y - y)
-            x, y = new_x, new_y
+            prev_x, prev_y = x, y
+            x, y, hit = self._move_checked(x, y, heading, speed * DT)
+            path_length += math.hypot(x - prev_x, y - prev_y)
 
-            if self._collides(x, y):
+            if hit:
                 done, outcome = True, "collision"
             else:
                 dist_to_goal = math.hypot(GOAL_POS[0] - x, GOAL_POS[1] - y)
@@ -566,7 +727,7 @@ class RobotSimulator:
                 "step": step,
                 "x": x, "y": y, "heading": heading,
                 "raw_sensors": raw, "observed_sensors": observed,
-                "steer_deg": steer_deg,
+                "steer_deg": steer_deg, "speed": speed,
                 "fault_spec": self.fault_injector.spec,
                 "path_length": path_length,
                 "min_clearance": min_clearance,

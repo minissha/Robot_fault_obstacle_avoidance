@@ -116,9 +116,12 @@ def train_ann(seed: int = 0) -> None:
     model = build_mlp(seed=seed)
     model.fit(X_fit, y_fit)
 
-    y_pred = model.predict(X_test)
-    mae = float(np.mean(np.abs(y_pred - y_test)))
-    print(f"Test-set MAE: {mae:.4f} degrees (n_test={len(X_test)})")
+    y_pred = np.asarray(model.predict(X_test)).reshape(len(X_test), -1)
+    y_ref = np.asarray(y_test).reshape(len(X_test), -1)
+    per_output = np.mean(np.abs(y_pred - y_ref), axis=0)
+    mae = float(per_output.mean())
+    print(f"Test-set MAE: steering {per_output[0]:.3f} deg, "
+          f"speed {per_output[1]:.3f} units/step (n_test={len(X_test)})")
 
     os.makedirs(RESULTS_DIR, exist_ok=True)
     controller = ANNController(model=model)
@@ -127,7 +130,9 @@ def train_ann(seed: int = 0) -> None:
 
     with open(os.path.join(RESULTS_DIR, "ann_training_report.json"), "w") as f:
         json.dump({
-            "test_mae_degrees": mae,
+            "test_mae_steering_degrees": float(per_output[0]),
+            "test_mae_speed": float(per_output[1]),
+            "test_mae_mean": mae,
             "n_train_episodes": len(train_eps),
             "n_val_episodes": len(val_eps),
             "n_test_episodes": len(test_eps),

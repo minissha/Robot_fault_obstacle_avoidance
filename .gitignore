@@ -1,24 +1,41 @@
-
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+
+# Virtual environments
 .venv/
 venv/
 env/
 
-# Large datasets
-*.nii
-*.nii.gz
-*.npy
-*.npz
+# Jupyter
+.ipynb_checkpoints/
 
-# Generated experiment outputs
-results/dataset.npz
-results/*.npz
-
-# Logs
-*.log
-
-# OS / IDE
+# IDE
 .vscode/
+.idea/
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs / temporary files
+*.log
+*.tmp
+
+# Python cache / test
+.pytest_cache/
+.mypy_cache/
+
+# Large/generated temporary files
+tmp/
+temp/
+cache/
+
+# Secrets
+.env
+*.key
+*.pem
+
+# Experiment scratch
+debug/

@@ -31,6 +31,8 @@ import numpy as np
 
 from config import N_SEEDS
 from simulation_core import (
+    N_SENSORS,
+    unpack_action,
     RobotSimulator, generate_obstacles, _dist_rect_to_rect,
     ROBOT_RADIUS, SENSOR_RANGE, MIN_OBSTACLE_GAP,
 )
@@ -104,18 +106,28 @@ def rule_coverage_heatmap() -> None:
 def sign_convention_check() -> None:
     print("\n=== 2.2b Steering Sign / Kinematics Convention Check ===")
     controller = HandTunedFLC()
-    # Obstacle close on the LEFT only -> controller should steer RIGHT (negative).
-    steer_left_obstacle = controller.predict(np.array([80.0, 10.0, 80.0]))
-    # Obstacle close on the RIGHT only -> controller should steer LEFT (positive).
-    steer_right_obstacle = controller.predict(np.array([80.0, 80.0, 10.0]))
-    print(f"Left-side obstacle (F=80,L=10,R=80) -> steer={steer_left_obstacle:+.1f} deg "
+    # Neutral goal (goal_angle=0) so the goal-attraction blend contributes
+    # nothing, keeping this a pure obstacle-avoidance sign check. Rays are
+    # ordered left to right, so blocking the first half blocks the left.
+    def obstacle_on(side: str) -> np.ndarray:
+        readings = np.full(N_SENSORS, 80.0)
+        half = N_SENSORS // 2
+        if side == "left":
+            readings[:half] = 8.0
+        else:
+            readings[half + 1:] = 8.0
+        return np.concatenate([readings, [50.0, 0.0]])
+
+    steer_left_obstacle = unpack_action(controller.predict(obstacle_on("left")))[0]
+    steer_right_obstacle = unpack_action(controller.predict(obstacle_on("right")))[0]
+    print(f"Obstacle on the LEFT  -> steer={steer_left_obstacle:+.1f} deg "
           f"(expect negative/right-turn): {'OK' if steer_left_obstacle < 0 else 'BUG'}")
-    print(f"Right-side obstacle (F=80,L=80,R=10) -> steer={steer_right_obstacle:+.1f} deg "
+    print(f"Obstacle on the RIGHT -> steer={steer_right_obstacle:+.1f} deg "
           f"(expect positive/left-turn): {'OK' if steer_right_obstacle > 0 else 'BUG'}")
-    print("Kinematics: heading += radians(steer_deg) * 0.3 (positive steer -> "
-          "counterclockwise heading increase). Left sensor sits at heading+45deg "
-          "(CCW), so a positive/left-turning response to a right-side obstacle "
-          "and vice versa is the CORRECT convention.")
+    print("Kinematics: heading += radians(steer_deg) * STEER_GAIN (positive steer "
+          "-> counterclockwise). The rays are listed from +75 deg (left) down to "
+          "-75 deg (right), so turning away from a blocked left side means a "
+          "negative steer, and vice versa.")
 
 
 def replay_and_success_check(n_episodes: int = 5, n_seeds_for_rate: int = 100) -> None:

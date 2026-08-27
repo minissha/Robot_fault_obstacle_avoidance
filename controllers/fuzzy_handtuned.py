@@ -3,23 +3,29 @@ fuzzy_handtuned.py
 
 Controller B: hand-tuned Mamdani fuzzy logic controller.
 
-Inputs:  Front (F), Left-diagonal (L), Right-diagonal (R), each in [0, 100],
-         each with terms {Near, Medium, Far}.
-Output:  Steering (S) in [-45, 45] degrees, with terms
-         {SharpLeft, Left, Straight, Right, SharpRight}.
+Inputs are the same three numbers the crisp baseline works from, read off
+the clearance profile: room straight ahead (A), room to the left (L), room
+to the right (R), each in [0, 100] and each carrying the terms
+{Near, Medium, Far}.
+
+Outputs are a steering angle in [-45, 45] and a speed. The steering side
+uses five terms {SharpLeft, Left, Straight, Right, SharpRight}; the speed
+side uses three {Slow, Medium, Fast}. Both are defuzzified by centroid, so
+unlike the baseline the controller can settle between two settings rather
+than having to commit to one -- easing off to two-thirds speed while
+drifting ten degrees left is a thing it can express and the crisp version
+cannot.
 
 Membership functions are trapezoidal/triangular, defined by two boundary
-values per input (near_bound, far_bound):
-    Near:   1.0 below near_bound, falling to 0 at far_bound*0.5-ish region
-    Medium: triangular, peak between near_bound and far_bound
-    Far:    rises from near_bound-ish, 1.0 above far_bound
+values per input:
+    Near:   1.0 below near_bound, falling to 0 by the midpoint
+    Medium: triangular, peak at the midpoint
+    Far:    rises from the midpoint, 1.0 at/above far_bound
 
-The six boundary values [f_near, f_far, l_near, l_far, r_near, r_far] form
-the GA chromosome used by the NSGA-II-tuned variant (controllers/fuzzy_nsga2.py),
-which reuses this exact class with evolved parameters instead of hand-tuned ones.
-
-Inference: Mamdani min/max composition. Defuzzification: centroid, computed
-over a discretized output universe.
+The eight boundary values
+[a_near, a_far, l_near, l_far, r_near, r_far, v_near, v_far]
+form the chromosome the NSGA-II variant evolves (controllers/fuzzy_nsga2.py),
+which reuses this class with evolved numbers instead of hand-tuned ones.
 """
 
 from __future__ import annotations
@@ -28,36 +34,29 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from simulation_core import MAX_STEER_DEG, ROBOT_RADIUS, ROBOT_SPEED
+from simulation_core import (
+    MAX_SPEED, MAX_STEER_DEG, MIN_SPEED, N_SENSORS, ROBOT_RADIUS,
+)
+from controllers.anti_stall import TurnCommit, escape_action
+from controllers.goal_bias import (
+    CANDIDATE_HEADINGS, blend_goal_steering, clearance_profile, clearance_speed,
+)
 
-# Crisp safety-override threshold; see predict() for derivation.
-CRITICAL_FRONT: float = 2.0 * ROBOT_RADIUS + 2.0 * ROBOT_SPEED  # 3.0 + 4.0 = 7.0
+# Crisp safety reflex, sitting underneath the fuzzy layer. Centroid
+# defuzzification is a weighted average over every active rule, so close to
+# a boundary in the input space it can return a gentler turn than any single
+# active rule actually asks for -- which is exactly the wrong moment for it.
+# Derived from kinematics rather than tuned: body diameter plus the distance
+# covered while a turn takes effect.
+CRITICAL_AHEAD: float = 2.0 * ROBOT_RADIUS + 2.0 * MAX_SPEED   # 9.0
 
-# Default hand-tuned boundaries: [f_near, f_far, l_near, l_far, r_near, r_far]
-# Re-tuned during the Blueprint v2 debugging pass (Sec 2.2) in two rounds:
-#   1. An initial grid search (obstacle fields only) suggested a WIDER
-#      reaction zone, (30,65,22,50,22,50). That value passed every
-#      obstacle-based test but was later caught by validate_simulator.py's
-#      "empty world -> 100% success" analytical check: with no obstacles
-#      at all, this hand-tuned FLC scored 0/30, because the world-boundary
-#      wall (which cast_ray legitimately treats as sense-able, see Sec 3
-#      below) triggers avoidance while approaching the goal corner at
-#      (92,92) -- close enough to two boundary walls that a wide reaction
-#      zone reads them as "Medium"/"Near" and steers the robot away before
-#      it can reach the goal, regardless of any real obstacle.
-#   2. This value, (18,40,16,38,16,38), was chosen by re-running the same
-#      grid search with the empty-world analytical check added as a hard
-#      constraint: it is the narrowest-reacting candidate (of those tested)
-#      that (a) still scores 99-100/100 in the empty-world check and
-#      (b) is the best-performing survivor on obstacle-field success.
-#      See validate_simulator.py and FINAL_REPORT.md for the numbers.
-DEFAULT_PARAMS: Tuple[float, ...] = (18.0, 40.0, 16.0, 38.0, 16.0, 38.0)
+# [a_near, a_far, l_near, l_far, r_near, r_far, v_near, v_far]
+DEFAULT_PARAMS: Tuple[float, ...] = (14.0, 38.0, 12.0, 34.0, 12.0, 34.0, 10.0, 32.0)
 
 OUTPUT_MIN: float = -45.0
 OUTPUT_MAX: float = 45.0
 OUTPUT_RESOLUTION: int = 181  # 0.5-degree steps
 
-# Output term centers (degrees): SharpLeft, Left, Straight, Right, SharpRight
 OUTPUT_CENTERS: Dict[str, float] = {
     "SharpLeft": 40.0,
     "Left": 20.0,
@@ -65,11 +64,19 @@ OUTPUT_CENTERS: Dict[str, float] = {
     "Right": -20.0,
     "SharpRight": -40.0,
 }
-OUTPUT_SPREAD: float = 22.0  # triangular half-width for output terms
+OUTPUT_SPREAD: float = 22.0  # triangular half-width for the steering terms
+
+SPEED_CENTERS: Dict[str, float] = {
+    "Slow": MIN_SPEED,
+    "Medium": 0.5 * (MIN_SPEED + MAX_SPEED),
+    "Fast": MAX_SPEED,
+}
+SPEED_SPREAD: float = 0.5 * (MAX_SPEED - MIN_SPEED)
+SPEED_RESOLUTION: int = 121
 
 
 def _trap_near(x: float, near_bound: float, far_bound: float) -> float:
-    """Near membership: 1.0 at/below near_bound, falls linearly to 0 by mid-point."""
+    """Near: 1.0 at/below near_bound, falling linearly to 0 by the midpoint."""
     mid = (near_bound + far_bound) / 2.0
     if x <= near_bound:
         return 1.0
@@ -79,7 +86,7 @@ def _trap_near(x: float, near_bound: float, far_bound: float) -> float:
 
 
 def _tri_medium(x: float, near_bound: float, far_bound: float) -> float:
-    """Medium membership: triangular peak at the midpoint between the bounds."""
+    """Medium: triangular, peaking at the midpoint between the bounds."""
     mid = (near_bound + far_bound) / 2.0
     half_width = (far_bound - near_bound) / 2.0
     if half_width <= 1e-9:
@@ -91,7 +98,7 @@ def _tri_medium(x: float, near_bound: float, far_bound: float) -> float:
 
 
 def _trap_far(x: float, near_bound: float, far_bound: float) -> float:
-    """Far membership: 0 below midpoint, rises to 1.0 at/above far_bound."""
+    """Far: 0 below the midpoint, rising to 1.0 at/above far_bound."""
     mid = (near_bound + far_bound) / 2.0
     if x >= far_bound:
         return 1.0
@@ -101,7 +108,7 @@ def _trap_far(x: float, near_bound: float, far_bound: float) -> float:
 
 
 def fuzzify(x: float, near_bound: float, far_bound: float) -> Dict[str, float]:
-    """Return membership degrees for {Near, Medium, Far} for one input value."""
+    """Membership degrees for {Near, Medium, Far} for one input value."""
     return {
         "Near": _trap_near(x, near_bound, far_bound),
         "Medium": _tri_medium(x, near_bound, far_bound),
@@ -110,55 +117,36 @@ def fuzzify(x: float, near_bound: float, far_bound: float) -> Dict[str, float]:
 
 
 # --------------------------------------------------------------------------
-# Rule base: FULL 27-rule coverage of {Near,Medium,Far}^3 -> output_term.
+# Rule base: all 27 combinations of {Near, Medium, Far} over (A, L, R).
 #
-# BUGFIX (Blueprint v2, Section 2.2 - Hand-Tuned FLC Zero-Success Root
-# Cause): the original hand-tuned rule base only listed 15 of the 27
-# possible (F, L, R) term combinations. For any uncovered combination
-# (e.g. Front=Far, Left=Medium, Right=Near), Mamdani inference produced
-# an all-zero aggregated output, and centroid defuzzification silently
-# fell back to `return 0.0` ("Straight") -- so the controller drove
-# blindly through obstacles whenever readings landed in an uncovered
-# region of the input space, even though the individual membership
-# functions and steering sign convention were themselves correct.
-#
-# Replay of failing episodes (see debug_controllers.py, rule-coverage
-# heatmap) confirmed this: episodes collided while an uncovered
-# combination like (Far, Medium, Near) held for several consecutive
-# steps and the controller kept commanding Straight into a closing
-# obstacle.
-#
-# Fix: every one of the 27 combinations is now explicitly covered by a
-# single, consistent policy (turn toward whichever side has *more*
-# clearance; escalate turn sharpness as the front reading gets more
-# urgent). The 15 original hand-tuned entries are reproduced exactly
-# (verified below) -- only the previously-missing 12 combinations are
-# new. Steering sign convention (SharpLeft/Left = positive degrees =
-# turn toward increasing heading, matching the "left" sensor sitting at
-# +45 deg in the robot body frame) is unchanged and was NOT the bug.
+# The original rule base only listed 15 of the 27. For any combination it
+# missed, inference produced an all-zero output and defuzzification quietly
+# returned 0.0 -- "Straight" -- so the controller drove into things whenever
+# the readings landed in an uncovered corner of the input space. Replaying
+# failed episodes confirmed it: they collided while an uncovered combination
+# held for several steps and the controller kept commanding Straight into a
+# closing obstacle. Every combination is covered now, under one consistent
+# policy: turn towards whichever side has more room, and turn harder the
+# tighter it gets ahead.
 # --------------------------------------------------------------------------
 
 _TERMS: Tuple[str, str, str] = ("Near", "Medium", "Far")
 _ORDER: Dict[str, int] = {"Near": 0, "Medium": 1, "Far": 2}
 
 
-def _default_policy(f_term: str, l_term: str, r_term: str) -> str:
-    """Safety-first fallback used to fill every (F, L, R) combination."""
-    if f_term == "Near":
-        # Obstacle close ahead: turn sharply toward the clearer side.
+def _steer_policy(a_term: str, l_term: str, r_term: str) -> str:
+    """Which way to turn, for one combination of input terms."""
+    if a_term == "Near":
         if _ORDER[l_term] == _ORDER[r_term]:
-            return "SharpLeft"  # symmetric tie-break (dead-end case)
+            return "SharpLeft"          # symmetric tie-break (dead end)
         return "SharpLeft" if _ORDER[l_term] > _ORDER[r_term] else "SharpRight"
-    if f_term == "Medium":
-        # Obstacle ahead but not urgent: gentle turn only if one flank is Near.
-        if l_term == "Near" and r_term != "Near":
-            return "Right"
-        if r_term == "Near" and l_term != "Near":
+    if a_term == "Medium":
+        if _ORDER[l_term] > _ORDER[r_term]:
             return "Left"
-        if l_term == "Near" and r_term == "Near":
+        if _ORDER[r_term] > _ORDER[l_term]:
             return "Right"
         return "Straight"
-    # f_term == "Far": front is clear; only react to a closing flank.
+    # Ahead is clear: only react to a flank that is closing in.
     if l_term == "Near" and r_term != "Near":
         return "Right"
     if r_term == "Near" and l_term != "Near":
@@ -168,73 +156,114 @@ def _default_policy(f_term: str, l_term: str, r_term: str) -> str:
     return "Straight"
 
 
-RULES: List[Tuple[str, str, str, str]] = [
-    (f, l, r, _default_policy(f, l, r))
-    for f in _TERMS for l in _TERMS for r in _TERMS
+def _speed_policy(a_term: str, l_term: str, r_term: str) -> str:
+    """How fast to travel, for one combination of input terms."""
+    if a_term == "Near":
+        return "Slow"
+    if a_term == "Medium":
+        return "Slow" if "Near" in (l_term, r_term) else "Medium"
+    if "Near" in (l_term, r_term):
+        return "Medium"
+    return "Fast"
+
+
+RULES: List[Tuple[str, str, str, str, str]] = [
+    (a, l, r, _steer_policy(a, l, r), _speed_policy(a, l, r))
+    for a in _TERMS for l in _TERMS for r in _TERMS
 ]
-assert len(RULES) == 27, "rule base must cover all 27 (F,L,R) term combinations"
+assert len(RULES) == 27, "rule base must cover all 27 (A, L, R) term combinations"
+
+_LEFT_CANDIDATES = CANDIDATE_HEADINGS > 0
+_RIGHT_CANDIDATES = CANDIDATE_HEADINGS < 0
+_AHEAD_CANDIDATE = int(np.argmin(np.abs(CANDIDATE_HEADINGS)))
 
 
 class HandTunedFLC:
-    """Mamdani fuzzy logic controller with a fixed 15-rule base."""
+    """Mamdani fuzzy controller over the clearance profile."""
 
     def __init__(self, params: Tuple[float, ...] = DEFAULT_PARAMS):
-        if len(params) != 6:
-            raise ValueError("FLC params must have exactly 6 values: "
-                              "[f_near, f_far, l_near, l_far, r_near, r_far].")
-        self.params = params
-        self._output_universe = np.linspace(OUTPUT_MIN, OUTPUT_MAX, OUTPUT_RESOLUTION)
+        if len(params) != 8:
+            raise ValueError(
+                "FLC params must have exactly 8 values: [a_near, a_far, "
+                "l_near, l_far, r_near, r_far, v_near, v_far].")
+        self.params = tuple(float(p) for p in params)
+        self._steer_universe = np.linspace(OUTPUT_MIN, OUTPUT_MAX, OUTPUT_RESOLUTION)
+        self._speed_universe = np.linspace(MIN_SPEED, MAX_SPEED, SPEED_RESOLUTION)
+        self._steer_mf = {t: np.clip(1.0 - np.abs(self._steer_universe - c) / OUTPUT_SPREAD, 0.0, 1.0)
+                           for t, c in OUTPUT_CENTERS.items()}
+        self._speed_mf = {t: np.clip(1.0 - np.abs(self._speed_universe - c) / SPEED_SPREAD, 0.0, 1.0)
+                           for t, c in SPEED_CENTERS.items()}
+        self._commit = TurnCommit()
 
     def reset(self) -> None:
-        return None
+        self._commit.reset()
 
-    def _output_term_membership(self, term: str, y: np.ndarray) -> np.ndarray:
-        center = OUTPUT_CENTERS[term]
-        return np.clip(1.0 - np.abs(y - center) / OUTPUT_SPREAD, 0.0, 1.0)
+    @staticmethod
+    def _inputs(readings: np.ndarray) -> Tuple[float, float, float]:
+        """(ahead, left, right) read off the clearance profile.
 
-    def predict(self, sensor_readings: np.ndarray) -> float:
-        f, l, r = float(sensor_readings[0]), float(sensor_readings[1]), float(sensor_readings[2])
+        The sides take the best heading available on that side rather than
+        the worst, because the question being asked is "is there a way
+        through over there", not "is anything over there at all".
+        """
+        profile = clearance_profile(readings)
+        return (float(profile[_AHEAD_CANDIDATE]),
+                float(profile[_LEFT_CANDIDATES].max()),
+                float(profile[_RIGHT_CANDIDATES].max()))
 
-        # ------------------------------------------------------------------
-        # Minimal, principled fix for collision-dominated FLC behavior
-        # (audit finding: overwhelming majority of FLC failures are
-        # collisions, not timeouts). Root cause: Mamdani centroid
-        # defuzzification is a WEIGHTED AVERAGE over all active rules, so
-        # near an input-region boundary (e.g. F just below f_near) it can
-        # return a smaller steering magnitude than any single active rule
-        # actually recommends -- exactly when the front reading is most
-        # critical and full-magnitude avoidance is needed most. This is a
-        # standard hybrid reactive/reflex-layer fix (crisp safety override
-        # beneath a fuzzy behavior layer, e.g. Saffiotti's fuzzy behavior
-        # blending), not a redesign of the FLC: the fuzzy rule base and
-        # inference are UNCHANGED, and this override only fires in the
-        # narrow, genuinely dangerous band the fuzzy layer under-reacts to.
-        # CRITICAL_FRONT is derived from kinematics, not tuned to results:
-        # ROBOT_RADIUS*2 (body diameter) + ROBOT_SPEED*2 (worst-case
-        # closing distance over the ~2-step actuation delay before a sharp
-        # turn takes effect) = 3.0 + 4.0 = 7.0 (see CRITICAL_FRONT above).
-        # ------------------------------------------------------------------
-        if f < CRITICAL_FRONT:
-            return MAX_STEER_DEG if l >= r else -MAX_STEER_DEG
+    def predict(self, observation: np.ndarray):
+        """observation: N_SENSORS range readings, then goal_distance and
+        goal_angle_deg. Returns (steering_deg, speed)."""
+        obs = np.asarray(observation, dtype=np.float64)
+        readings = obs[:N_SENSORS]
+        goal_distance, goal_angle_deg = float(obs[N_SENSORS]), float(obs[N_SENSORS + 1])
 
-        f_near, f_far, l_near, l_far, r_near, r_far = self.params
+        ahead, left, right = self._inputs(readings)
 
-        f_mf = fuzzify(f, f_near, f_far)
-        l_mf = fuzzify(l, l_near, l_far)
-        r_mf = fuzzify(r, r_near, r_far)
+        if ahead < CRITICAL_AHEAD:
+            # Reflex: never diluted by the goal term, never pre-empted by
+            # the cycle-breaker. Hardest turn towards whichever side has
+            # room, and slow enough to make it.
+            #
+            # Speed comes off the same ramp the fuzzy layer uses rather than
+            # being pinned at the floor. That matters now the floor is zero:
+            # pinned, the robot would stop dead and stay stopped: on the
+            # ramp it stops while it is facing the obstacle and picks up
+            # again the moment the turn has opened the way ahead.
+            return escape_action(clearance_profile(readings), CANDIDATE_HEADINGS,
+                                  ahead, self._commit, MAX_STEER_DEG, clearance_speed)
 
-        aggregated = np.zeros_like(self._output_universe)
+        a_near, a_far, l_near, l_far, r_near, r_far, v_near, v_far = self.params
 
-        for f_term, l_term, r_term, out_term in RULES:
-            strength = min(f_mf[f_term], l_mf[l_term], r_mf[r_term])
+        self._commit.release()      # way ahead is clear; next jam decides afresh
+        a_mf = fuzzify(ahead, a_near, a_far)
+        l_mf = fuzzify(left, l_near, l_far)
+        r_mf = fuzzify(right, r_near, r_far)
+        v_mf = fuzzify(ahead, v_near, v_far)
+
+        steer_agg = np.zeros_like(self._steer_universe)
+        speed_agg = np.zeros_like(self._speed_universe)
+
+        for a_term, l_term, r_term, steer_term, speed_term in RULES:
+            strength = min(a_mf[a_term], l_mf[l_term], r_mf[r_term])
             if strength <= 0.0:
                 continue
-            term_mf = self._output_term_membership(out_term, self._output_universe)
-            clipped = np.minimum(term_mf, strength)
-            aggregated = np.maximum(aggregated, clipped)
+            np.maximum(steer_agg, np.minimum(self._steer_mf[steer_term], strength),
+                        out=steer_agg)
+            # The speed side reads "room ahead" through its own boundaries, so
+            # a rule can fire hard for steering and only softly for speed.
+            speed_strength = min(strength, v_mf[a_term])
+            np.maximum(speed_agg, np.minimum(self._speed_mf[speed_term], speed_strength),
+                        out=speed_agg)
 
-        total = np.sum(aggregated)
-        if total <= 1e-9:
-            return 0.0
-        centroid = float(np.sum(aggregated * self._output_universe) / total)
-        return centroid
+        steer_total = float(steer_agg.sum())
+        centroid = 0.0 if steer_total <= 1e-9 else float(
+            (steer_agg * self._steer_universe).sum() / steer_total)
+
+        speed_total = float(speed_agg.sum())
+        speed = MIN_SPEED if speed_total <= 1e-9 else float(
+            (speed_agg * self._speed_universe).sum() / speed_total)
+
+        steer = blend_goal_steering(centroid, ahead, goal_distance, goal_angle_deg)
+        return (float(np.clip(steer, -MAX_STEER_DEG, MAX_STEER_DEG)),
+                float(np.clip(speed, MIN_SPEED, MAX_SPEED)))

@@ -1,54 +1,68 @@
 [
   {
     "episode_id": 0,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 851852,
     "success": false,
-    "collision": true,
-    "n_steps": 50
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 1,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 178934,
     "success": false,
-    "collision": true,
-    "n_steps": 19
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 2,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 26417,
     "success": false,
-    "collision": true,
-    "n_steps": 47
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 3,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 639913,
     "success": false,
-    "collision": true,
-    "n_steps": 18
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 4,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 365477,
     "success": false,
-    "collision": true,
-    "n_steps": 26
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 5,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 467268,
     "success": false,
-    "collision": true,
-    "n_steps": 64
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 6,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 79828,
     "success": false,
@@ -57,62 +71,78 @@
   },
   {
     "episode_id": 7,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 370500,
     "success": false,
-    "collision": true,
-    "n_steps": 148
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 8,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 643451,
     "success": false,
-    "collision": true,
-    "n_steps": 12
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 9,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 354917,
     "success": false,
-    "collision": true,
-    "n_steps": 45
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 10,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 831061,
-    "success": false,
-    "collision": true,
-    "n_steps": 49
+    "success": true,
+    "collision": false,
+    "n_steps": 102
   },
   {
     "episode_id": 11,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 790518,
     "success": false,
-    "collision": true,
-    "n_steps": 96
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 12,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 704427,
     "success": false,
-    "collision": true,
-    "n_steps": 54
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 13,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 905143,
     "success": false,
-    "collision": true,
-    "n_steps": 104
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 14,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 721208,
     "success": false,
@@ -121,286 +151,358 @@
   },
   {
     "episode_id": 15,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 177353,
-    "success": false,
-    "collision": true,
-    "n_steps": 60
-  },
-  {
-    "episode_id": 16,
-    "tier": "sparse",
-    "seed": 858454,
-    "success": false,
-    "collision": true,
-    "n_steps": 76
-  },
-  {
-    "episode_id": 17,
-    "tier": "dense",
-    "seed": 652784,
-    "success": false,
-    "collision": true,
-    "n_steps": 50
-  },
-  {
-    "episode_id": 18,
-    "tier": "sparse",
-    "seed": 98466,
-    "success": false,
-    "collision": true,
-    "n_steps": 51
-  },
-  {
-    "episode_id": 19,
-    "tier": "dense",
-    "seed": 298302,
-    "success": false,
-    "collision": true,
-    "n_steps": 11
-  },
-  {
-    "episode_id": 20,
-    "tier": "sparse",
-    "seed": 165673,
-    "success": false,
-    "collision": true,
-    "n_steps": 44
-  },
-  {
-    "episode_id": 21,
-    "tier": "dense",
-    "seed": 966962,
-    "success": false,
-    "collision": true,
-    "n_steps": 14
-  },
-  {
-    "episode_id": 22,
-    "tier": "sparse",
-    "seed": 727960,
-    "success": false,
-    "collision": true,
-    "n_steps": 236
-  },
-  {
-    "episode_id": 23,
-    "tier": "dense",
-    "seed": 919850,
-    "success": false,
-    "collision": true,
-    "n_steps": 44
-  },
-  {
-    "episode_id": 24,
-    "tier": "sparse",
-    "seed": 282499,
-    "success": false,
-    "collision": true,
-    "n_steps": 71
-  },
-  {
-    "episode_id": 25,
-    "tier": "dense",
-    "seed": 635870,
-    "success": false,
-    "collision": true,
-    "n_steps": 46
-  },
-  {
-    "episode_id": 26,
-    "tier": "sparse",
-    "seed": 604174,
-    "success": false,
-    "collision": true,
-    "n_steps": 62
-  },
-  {
-    "episode_id": 27,
-    "tier": "dense",
-    "seed": 752732,
-    "success": false,
-    "collision": true,
-    "n_steps": 51
-  },
-  {
-    "episode_id": 28,
-    "tier": "sparse",
-    "seed": 118016,
-    "success": false,
-    "collision": true,
-    "n_steps": 114
-  },
-  {
-    "episode_id": 29,
-    "tier": "dense",
-    "seed": 515153,
-    "success": false,
-    "collision": true,
-    "n_steps": 49
-  },
-  {
-    "episode_id": 30,
-    "tier": "sparse",
-    "seed": 644543,
-    "success": false,
-    "collision": true,
-    "n_steps": 63
-  },
-  {
-    "episode_id": 31,
-    "tier": "dense",
-    "seed": 825895,
-    "success": false,
-    "collision": true,
-    "n_steps": 48
-  },
-  {
-    "episode_id": 32,
-    "tier": "sparse",
-    "seed": 656086,
-    "success": false,
-    "collision": true,
-    "n_steps": 43
-  },
-  {
-    "episode_id": 33,
-    "tier": "dense",
-    "seed": 448380,
-    "success": false,
-    "collision": true,
-    "n_steps": 11
-  },
-  {
-    "episode_id": 34,
-    "tier": "sparse",
-    "seed": 460134,
-    "success": false,
-    "collision": true,
-    "n_steps": 22
-  },
-  {
-    "episode_id": 35,
-    "tier": "dense",
-    "seed": 338812,
-    "success": false,
-    "collision": true,
-    "n_steps": 49
-  },
-  {
-    "episode_id": 36,
-    "tier": "sparse",
-    "seed": 157239,
-    "success": false,
-    "collision": true,
-    "n_steps": 187
-  },
-  {
-    "episode_id": 37,
-    "tier": "dense",
-    "seed": 277899,
-    "success": false,
-    "collision": true,
-    "n_steps": 50
-  },
-  {
-    "episode_id": 38,
-    "tier": "sparse",
-    "seed": 146127,
-    "success": false,
-    "collision": true,
-    "n_steps": 46
-  },
-  {
-    "episode_id": 39,
-    "tier": "dense",
-    "seed": 226333,
-    "success": false,
-    "collision": true,
-    "n_steps": 43
-  },
-  {
-    "episode_id": 40,
-    "tier": "sparse",
-    "seed": 853797,
     "success": false,
     "collision": false,
     "n_steps": 400
   },
   {
+    "episode_id": 16,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 858454,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 17,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 652784,
+    "success": true,
+    "collision": false,
+    "n_steps": 111
+  },
+  {
+    "episode_id": 18,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 98466,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 19,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 298302,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 20,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 165673,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 21,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 966962,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 22,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 727960,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 23,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 919850,
+    "success": true,
+    "collision": false,
+    "n_steps": 183
+  },
+  {
+    "episode_id": 24,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 282499,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 25,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 635870,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 26,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 604174,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 27,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 752732,
+    "success": true,
+    "collision": false,
+    "n_steps": 190
+  },
+  {
+    "episode_id": 28,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 118016,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 29,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 515153,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 30,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 644543,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 31,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 825895,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 32,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 656086,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 33,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 448380,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 34,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 460134,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 35,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 338812,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 36,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 157239,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 37,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 277899,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 38,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 146127,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 39,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "dense",
+    "seed": 226333,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 40,
+    "round": "teacher",
+    "driver": "teacher",
+    "tier": "sparse",
+    "seed": 853797,
+    "success": true,
+    "collision": false,
+    "n_steps": 108
+  },
+  {
     "episode_id": 41,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 525816,
-    "success": false,
-    "collision": true,
-    "n_steps": 56
+    "success": true,
+    "collision": false,
+    "n_steps": 214
   },
   {
     "episode_id": 42,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 91600,
     "success": false,
-    "collision": true,
-    "n_steps": 16
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 43,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 430912,
-    "success": false,
-    "collision": true,
-    "n_steps": 48
+    "success": true,
+    "collision": false,
+    "n_steps": 255
   },
   {
     "episode_id": 44,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 270785,
     "success": false,
-    "collision": true,
+    "collision": false,
     "n_steps": 400
   },
   {
     "episode_id": 45,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 663180,
     "success": false,
-    "collision": true,
-    "n_steps": 48
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 46,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 830299,
     "success": false,
-    "collision": true,
-    "n_steps": 35
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 47,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 12840,
     "success": false,
-    "collision": true,
-    "n_steps": 34
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 48,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 465818,
-    "success": false,
-    "collision": true,
-    "n_steps": 34
+    "success": true,
+    "collision": false,
+    "n_steps": 290
   },
   {
     "episode_id": 49,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 447701,
     "success": false,
-    "collision": true,
-    "n_steps": 34
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 50,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 990701,
     "success": false,
@@ -409,142 +511,178 @@
   },
   {
     "episode_id": 51,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 365180,
     "success": false,
-    "collision": true,
-    "n_steps": 33
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 52,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 165218,
     "success": false,
-    "collision": true,
-    "n_steps": 44
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 53,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 195397,
-    "success": false,
-    "collision": true,
-    "n_steps": 41
+    "success": true,
+    "collision": false,
+    "n_steps": 368
   },
   {
     "episode_id": 54,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 477551,
     "success": false,
-    "collision": true,
-    "n_steps": 34
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 55,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 594865,
     "success": false,
-    "collision": true,
-    "n_steps": 48
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 56,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 326566,
-    "success": false,
-    "collision": true,
-    "n_steps": 125
+    "success": true,
+    "collision": false,
+    "n_steps": 92
   },
   {
     "episode_id": 57,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 435313,
     "success": false,
-    "collision": true,
-    "n_steps": 38
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 58,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 663280,
     "success": false,
-    "collision": true,
-    "n_steps": 20
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 59,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 299991,
     "success": false,
-    "collision": true,
-    "n_steps": 17
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 60,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 964734,
     "success": false,
-    "collision": true,
-    "n_steps": 49
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 61,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 209416,
     "success": false,
-    "collision": true,
-    "n_steps": 17
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 62,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 935244,
-    "success": false,
-    "collision": true,
-    "n_steps": 58
+    "success": true,
+    "collision": false,
+    "n_steps": 72
   },
   {
     "episode_id": 63,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 874624,
     "success": false,
-    "collision": true,
-    "n_steps": 50
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 64,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 956986,
     "success": false,
-    "collision": true,
-    "n_steps": 49
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 65,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 797462,
-    "success": false,
-    "collision": true,
-    "n_steps": 47
+    "success": true,
+    "collision": false,
+    "n_steps": 286
   },
   {
     "episode_id": 66,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 528718,
-    "success": false,
-    "collision": true,
-    "n_steps": 46
+    "success": true,
+    "collision": false,
+    "n_steps": 70
   },
   {
     "episode_id": 67,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 606709,
     "success": false,
-    "collision": true,
-    "n_steps": 39
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 68,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 206695,
     "success": false,
@@ -553,90 +691,1312 @@
   },
   {
     "episode_id": 69,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 345100,
     "success": false,
-    "collision": true,
-    "n_steps": 24
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 70,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 463146,
-    "success": false,
-    "collision": true,
-    "n_steps": 51
+    "success": true,
+    "collision": false,
+    "n_steps": 158
   },
   {
     "episode_id": 71,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 946819,
     "success": false,
-    "collision": true,
-    "n_steps": 50
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 72,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 794777,
     "success": false,
-    "collision": true,
-    "n_steps": 29
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 73,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 563377,
-    "success": false,
-    "collision": true,
-    "n_steps": 56
+    "success": true,
+    "collision": false,
+    "n_steps": 222
   },
   {
     "episode_id": 74,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 595057,
     "success": false,
-    "collision": true,
-    "n_steps": 45
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 75,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 432762,
     "success": false,
-    "collision": true,
-    "n_steps": 52
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 76,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 419448,
     "success": false,
-    "collision": true,
-    "n_steps": 49
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 77,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 900449,
     "success": false,
-    "collision": true,
-    "n_steps": 35
+    "collision": false,
+    "n_steps": 400
   },
   {
     "episode_id": 78,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "sparse",
     "seed": 4144,
-    "success": false,
-    "collision": true,
-    "n_steps": 53
+    "success": true,
+    "collision": false,
+    "n_steps": 83
   },
   {
     "episode_id": 79,
+    "round": "teacher",
+    "driver": "teacher",
     "tier": "dense",
     "seed": 319341,
     "success": false,
-    "collision": true,
-    "n_steps": 52
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 80,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 408366,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 81,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 695994,
+    "success": true,
+    "collision": false,
+    "n_steps": 282
+  },
+  {
+    "episode_id": 82,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 411896,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 83,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 313820,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 84,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 78354,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 85,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 261553,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 86,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 105724,
+    "success": true,
+    "collision": false,
+    "n_steps": 358
+  },
+  {
+    "episode_id": 87,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 700840,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 88,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 427823,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 89,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 227891,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 90,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 540060,
+    "success": true,
+    "collision": false,
+    "n_steps": 139
+  },
+  {
+    "episode_id": 91,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 493110,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 92,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 472761,
+    "success": true,
+    "collision": false,
+    "n_steps": 149
+  },
+  {
+    "episode_id": 93,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 580028,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 94,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 626646,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 95,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 188906,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 96,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 155028,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 97,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 731240,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 98,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 972641,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 99,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 548483,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 100,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 450799,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 101,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 621503,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 102,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 34648,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 103,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 372144,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 104,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 358750,
+    "success": true,
+    "collision": false,
+    "n_steps": 399
+  },
+  {
+    "episode_id": 105,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 420193,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 106,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 743970,
+    "success": true,
+    "collision": false,
+    "n_steps": 200
+  },
+  {
+    "episode_id": 107,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 494829,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 108,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 855780,
+    "success": true,
+    "collision": false,
+    "n_steps": 371
+  },
+  {
+    "episode_id": 109,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 469970,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 110,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 33987,
+    "success": true,
+    "collision": false,
+    "n_steps": 319
+  },
+  {
+    "episode_id": 111,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 675639,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 112,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 798068,
+    "success": true,
+    "collision": false,
+    "n_steps": 263
+  },
+  {
+    "episode_id": 113,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 577177,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 114,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 937534,
+    "success": true,
+    "collision": false,
+    "n_steps": 151
+  },
+  {
+    "episode_id": 115,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 416270,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 116,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 797115,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 117,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 1802,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 118,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 38979,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 119,
+    "round": "dagger1",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 794031,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 120,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 873353,
+    "success": true,
+    "collision": false,
+    "n_steps": 158
+  },
+  {
+    "episode_id": 121,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 519384,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 122,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 752719,
+    "success": true,
+    "collision": false,
+    "n_steps": 397
+  },
+  {
+    "episode_id": 123,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 326544,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 124,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 727025,
+    "success": true,
+    "collision": false,
+    "n_steps": 133
+  },
+  {
+    "episode_id": 125,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 499955,
+    "success": true,
+    "collision": false,
+    "n_steps": 150
+  },
+  {
+    "episode_id": 126,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 303575,
+    "success": true,
+    "collision": false,
+    "n_steps": 100
+  },
+  {
+    "episode_id": 127,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 93445,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 128,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 174661,
+    "success": true,
+    "collision": false,
+    "n_steps": 130
+  },
+  {
+    "episode_id": 129,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 904704,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 130,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 443818,
+    "success": true,
+    "collision": false,
+    "n_steps": 95
+  },
+  {
+    "episode_id": 131,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 989736,
+    "success": true,
+    "collision": false,
+    "n_steps": 143
+  },
+  {
+    "episode_id": 132,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 352875,
+    "success": true,
+    "collision": false,
+    "n_steps": 109
+  },
+  {
+    "episode_id": 133,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 58735,
+    "success": true,
+    "collision": false,
+    "n_steps": 188
+  },
+  {
+    "episode_id": 134,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 256210,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 135,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 358231,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 136,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 701011,
+    "success": true,
+    "collision": false,
+    "n_steps": 134
+  },
+  {
+    "episode_id": 137,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 730064,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 138,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 736963,
+    "success": true,
+    "collision": false,
+    "n_steps": 136
+  },
+  {
+    "episode_id": 139,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 314238,
+    "success": true,
+    "collision": false,
+    "n_steps": 347
+  },
+  {
+    "episode_id": 140,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 380010,
+    "success": true,
+    "collision": false,
+    "n_steps": 115
+  },
+  {
+    "episode_id": 141,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 567049,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 142,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 606302,
+    "success": true,
+    "collision": false,
+    "n_steps": 395
+  },
+  {
+    "episode_id": 143,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 416570,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 144,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 190204,
+    "success": true,
+    "collision": false,
+    "n_steps": 194
+  },
+  {
+    "episode_id": 145,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 774212,
+    "success": true,
+    "collision": false,
+    "n_steps": 140
+  },
+  {
+    "episode_id": 146,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 520756,
+    "success": true,
+    "collision": false,
+    "n_steps": 187
+  },
+  {
+    "episode_id": 147,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 958464,
+    "success": true,
+    "collision": false,
+    "n_steps": 397
+  },
+  {
+    "episode_id": 148,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 946104,
+    "success": true,
+    "collision": false,
+    "n_steps": 186
+  },
+  {
+    "episode_id": 149,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 888395,
+    "success": true,
+    "collision": false,
+    "n_steps": 317
+  },
+  {
+    "episode_id": 150,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 960759,
+    "success": true,
+    "collision": false,
+    "n_steps": 127
+  },
+  {
+    "episode_id": 151,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 620935,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 152,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 298238,
+    "success": true,
+    "collision": false,
+    "n_steps": 340
+  },
+  {
+    "episode_id": 153,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 160274,
+    "success": true,
+    "collision": false,
+    "n_steps": 205
+  },
+  {
+    "episode_id": 154,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 105219,
+    "success": true,
+    "collision": false,
+    "n_steps": 193
+  },
+  {
+    "episode_id": 155,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 947062,
+    "success": true,
+    "collision": false,
+    "n_steps": 228
+  },
+  {
+    "episode_id": 156,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 270331,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 157,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 23632,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 158,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 37537,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 159,
+    "round": "dagger2",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 297709,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 160,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 979380,
+    "success": true,
+    "collision": false,
+    "n_steps": 103
+  },
+  {
+    "episode_id": 161,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 281613,
+    "success": true,
+    "collision": false,
+    "n_steps": 367
+  },
+  {
+    "episode_id": 162,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 102110,
+    "success": true,
+    "collision": false,
+    "n_steps": 100
+  },
+  {
+    "episode_id": 163,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 671825,
+    "success": true,
+    "collision": false,
+    "n_steps": 169
+  },
+  {
+    "episode_id": 164,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 59724,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 165,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 487363,
+    "success": true,
+    "collision": false,
+    "n_steps": 161
+  },
+  {
+    "episode_id": 166,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 86137,
+    "success": true,
+    "collision": false,
+    "n_steps": 104
+  },
+  {
+    "episode_id": 167,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 92888,
+    "success": true,
+    "collision": false,
+    "n_steps": 397
+  },
+  {
+    "episode_id": 168,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 360115,
+    "success": true,
+    "collision": false,
+    "n_steps": 114
+  },
+  {
+    "episode_id": 169,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 12857,
+    "success": true,
+    "collision": false,
+    "n_steps": 309
+  },
+  {
+    "episode_id": 170,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 850592,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 171,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 604315,
+    "success": true,
+    "collision": false,
+    "n_steps": 216
+  },
+  {
+    "episode_id": 172,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 933376,
+    "success": true,
+    "collision": false,
+    "n_steps": 165
+  },
+  {
+    "episode_id": 173,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 491483,
+    "success": true,
+    "collision": false,
+    "n_steps": 294
+  },
+  {
+    "episode_id": 174,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 556126,
+    "success": true,
+    "collision": false,
+    "n_steps": 137
+  },
+  {
+    "episode_id": 175,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 601382,
+    "success": true,
+    "collision": false,
+    "n_steps": 179
+  },
+  {
+    "episode_id": 176,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 466027,
+    "success": true,
+    "collision": false,
+    "n_steps": 107
+  },
+  {
+    "episode_id": 177,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 564023,
+    "success": true,
+    "collision": false,
+    "n_steps": 175
+  },
+  {
+    "episode_id": 178,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 572447,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 179,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 890459,
+    "success": true,
+    "collision": false,
+    "n_steps": 176
+  },
+  {
+    "episode_id": 180,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 303373,
+    "success": true,
+    "collision": false,
+    "n_steps": 124
+  },
+  {
+    "episode_id": 181,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 918396,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 182,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 172461,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 183,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 188257,
+    "success": true,
+    "collision": false,
+    "n_steps": 180
+  },
+  {
+    "episode_id": 184,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 255029,
+    "success": true,
+    "collision": false,
+    "n_steps": 279
+  },
+  {
+    "episode_id": 185,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 942120,
+    "success": true,
+    "collision": false,
+    "n_steps": 376
+  },
+  {
+    "episode_id": 186,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 244768,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 187,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 787726,
+    "success": true,
+    "collision": false,
+    "n_steps": 191
+  },
+  {
+    "episode_id": 188,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 583088,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 189,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 639026,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 190,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 77551,
+    "success": true,
+    "collision": false,
+    "n_steps": 146
+  },
+  {
+    "episode_id": 191,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 659607,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 192,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 69501,
+    "success": true,
+    "collision": false,
+    "n_steps": 221
+  },
+  {
+    "episode_id": 193,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 546060,
+    "success": true,
+    "collision": false,
+    "n_steps": 399
+  },
+  {
+    "episode_id": 194,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 787049,
+    "success": true,
+    "collision": false,
+    "n_steps": 240
+  },
+  {
+    "episode_id": 195,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 917263,
+    "success": true,
+    "collision": false,
+    "n_steps": 296
+  },
+  {
+    "episode_id": 196,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 989700,
+    "success": true,
+    "collision": false,
+    "n_steps": 167
+  },
+  {
+    "episode_id": 197,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 233263,
+    "success": false,
+    "collision": false,
+    "n_steps": 400
+  },
+  {
+    "episode_id": 198,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "sparse",
+    "seed": 767638,
+    "success": true,
+    "collision": false,
+    "n_steps": 252
+  },
+  {
+    "episode_id": 199,
+    "round": "dagger3",
+    "driver": "student",
+    "tier": "dense",
+    "seed": 599315,
+    "success": true,
+    "collision": false,
+    "n_steps": 279
   }
 ]

@@ -1,0 +1,39 @@
+# Stage 4: cross-embodiment training. Same physics/task/perception noise
+# model as Stage 2 — the only difference is which embodiment(s) generate
+# the training envs. Used by scripts/train_ppo_stage4.py in both
+# --mode shared (mix both embodiments) and --mode specific (one embodiment
+# only) so the two runs are apples-to-apples for the Stage 5 zero-shot
+# transfer comparison.
+
+env:
+  max_steps: 200
+  goal_radius: 0.06
+  success_hold_steps: 10
+  action_scale: 0.03
+  seed: 0
+
+perception:
+  n_points: 768
+  object_point_frac: 0.35
+  jitter_std: 0.004
+  dropout_frac: 0.10
+  occlusion_prob: 0.3
+  occlusion_frac: 0.20
+
+encoder:
+  embed_dim: 128
+
+ppo:
+  total_timesteps: 700000   # cross-embodiment task is harder; budget more
+  n_envs: 4
+  n_steps: 512
+  batch_size: 256
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.0
+  n_epochs: 10
+  eval_freq: 10000
+  checkpoint_dir: checkpoints/ppo_stage4
+  log_dir: logs/ppo_stage4

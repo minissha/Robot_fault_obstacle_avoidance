@@ -8,7 +8,7 @@ the project root:
 
 Checks:
     - sparse/dense environment obstacle counts
-    - 3 sensors present, readings within [0, SENSOR_RANGE]
+    - all sensors present, readings within [0, SENSOR_RANGE]
     - clean vs faulty episodes both run
     - all 4 fault types can be sampled and applied
     - reproducibility: identical (tier, seed, faulty) -> identical results
@@ -29,6 +29,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 
 from simulation_core import (
+    N_SENSORS,
+    DENSE_OBSTACLE_RANGE,
+    SPARSE_OBSTACLE_RANGE,
     FAULT_TYPES,
     SENSOR_RANGE,
     RobotSimulator,
@@ -43,9 +46,11 @@ def test_obstacle_generation() -> None:
     for seed in range(5):
         sparse = generate_obstacles("sparse", seed)
         dense = generate_obstacles("dense", seed)
-        assert 5 <= len(sparse) <= 8, f"sparse tier produced {len(sparse)} obstacles"
-        assert 12 <= len(dense) <= 18, f"dense tier produced {len(dense)} obstacles"
-    print("[PASS] obstacle generation (sparse 5-8, dense 12-18; see Blueprint v2 Sec 2.1 feasibility fix)")
+        slo, shi = SPARSE_OBSTACLE_RANGE
+        assert slo <= len(sparse) <= shi, f"sparse tier produced {len(sparse)} obstacles"
+        lo, hi = DENSE_OBSTACLE_RANGE
+        assert lo <= len(dense) <= hi, f"dense tier produced {len(dense)} obstacles"
+    print("[PASS] obstacle generation (sparse 5-8, dense 22-30; see Blueprint v2 Sec 2.1 feasibility fix)")
 
 
 def test_dense_tier_feasibility() -> None:
@@ -75,10 +80,10 @@ def test_three_sensors_and_range() -> None:
     result = sim.run(controller)
     assert len(result.sensor_log) > 0, "no sensor readings logged"
     for reading in result.sensor_log:
-        assert len(reading) == 3, "expected exactly 3 sensor readings (front, left, right)"
+        assert len(reading) == N_SENSORS, f"expected {N_SENSORS} sensor readings"
         for v in reading:
             assert -1e-6 <= v <= SENSOR_RANGE + 1e-6, f"sensor reading {v} out of range"
-    print("[PASS] 3 sensors present, all readings within [0, SENSOR_RANGE]")
+    print(f"[PASS] {N_SENSORS} sensors present, all readings within [0, SENSOR_RANGE]")
 
 
 def test_clean_and_faulty_episodes() -> None:
@@ -146,7 +151,7 @@ def test_metrics_present_and_typed() -> None:
     d = result.metrics.to_dict()
     expected_keys = {
         "success", "collision", "path_length", "time_to_goal",
-        "min_clearance", "steering_smoothness", "final_goal_distance", "steps",
+        "min_clearance", "steering_smoothness", "final_goal_distance", "steps", "mean_speed",
     }
     assert set(d.keys()) == expected_keys, f"missing/extra metric keys: {d.keys()}"
     assert isinstance(d["success"], bool)

@@ -45,7 +45,7 @@ except ImportError:
 
 from simulation_core import (
     RobotSimulator, WORLD_SIZE, ROBOT_RADIUS, GOAL_POS, GOAL_RADIUS,
-    SENSOR_ANGLES_DEG, SENSOR_RANGE, MAX_STEPS,
+    SENSOR_ANGLES_DEG, SENSOR_NAMES, SENSOR_RANGE, MAX_STEPS, FRONT_INDEX,
 )
 from controllers.baseline import BaselineController
 from controllers.fuzzy_handtuned import HandTunedFLC
@@ -174,12 +174,13 @@ class SimulatorApp:
             self._reset_episode()
         elif event.key in FAULT_KEYS and not self.done:
             fault_type = FAULT_KEYS[event.key]
-            sensor_idx = 0  # front sensor by default; Shift+number picks left/right below
+            # Straight ahead by default; Shift/Ctrl walk out to the shoulders.
+            sensor_idx = FRONT_INDEX
             mods = pygame.key.get_mods()
             if mods & pygame.KMOD_SHIFT:
-                sensor_idx = 1  # left
+                sensor_idx = max(0, FRONT_INDEX - 2)          # left of centre
             elif mods & pygame.KMOD_CTRL:
-                sensor_idx = 2  # right
+                sensor_idx = min(len(SENSOR_NAMES) - 1, FRONT_INDEX + 2)   # right
             step = self.last_state["step"] if self.last_state else 0
             self.sim.fault_injector.trigger_manual_fault(fault_type, sensor_idx, step=step + 1)
         elif event.key == pygame.K_0 and not self.done:
@@ -262,6 +263,7 @@ class SimulatorApp:
             status_lines = [
                 f"Step: {state['step']} / {MAX_STEPS}",
                 f"Steering: {state['steer_deg']:+.1f} deg",
+                f"Speed: {state.get('speed', 0.0):.2f} units/step",
                 f"Path length: {state['path_length']:.1f}",
                 f"Min clearance: {state['min_clearance']:.1f}",
                 fault_line,
@@ -269,17 +271,19 @@ class SimulatorApp:
             self._text(status_lines, x0, 190)
 
             sensor_lines = ["Sensors (raw / observed):"]
-            names = ["front", "left ", "right"]
+            names = SENSOR_NAMES
             for i, name in enumerate(names):
                 sensor_lines.append(
-                    f"  {name}: {state['raw_sensors'][i]:5.1f} / {state['observed_sensors'][i]:5.1f}")
+                    f"  {name:<8s}: {state['raw_sensors'][i]:5.1f} / "
+                    f"{state['observed_sensors'][i]:5.1f}")
             self._text(sensor_lines, x0, 330, font=self.font_small)
 
             if self.detector is not None:
                 det_lines = ["Fault detector (per sensor):"]
                 for i, name in enumerate(names):
                     det_lines.append(
-                        f"  {name}: {self.detector_labels[i]:<11s} conf={self.detector_confs[i]:.2f}")
+                        f"  {name:<8s}: {self.detector_labels[i]:<11s} "
+                        f"conf={self.detector_confs[i]:.2f}")
                 self._text(det_lines, x0, 440, font=self.font_small, color=(160, 220, 255))
 
             if outcome is not None:
@@ -293,8 +297,8 @@ class SimulatorApp:
             "R      restart episode  N/P    next/prev seed",
             "C      toggle controller T     toggle tier",
             "UP/DOWN adjust speed",
-            "1/2/3/4  inject dropout/bias/noise-spike/stale (front)",
-            "  +Shift = left sensor, +Ctrl = right sensor",
+            "1/2/3/4  inject dropout/bias/noise-spike/stale (front ray)",
+            "  +Shift = a ray to the left, +Ctrl = one to the right",
             "0      clear fault",
         ]
         self._text(controls, x0, 620, font=self.font_small, color=MUTED_TEXT, line_h=17)

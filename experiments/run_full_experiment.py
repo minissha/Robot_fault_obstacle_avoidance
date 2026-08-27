@@ -33,6 +33,7 @@ from __future__ import annotations
 import csv
 import os
 import sys
+from typing import Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -54,10 +55,33 @@ STUCK_DISPLACEMENT_THRESHOLD = 15.0  # world units; see classify_failure_mode
 METRIC_FIELDS = [
     "success", "collision", "timeout", "stuck_oscillation",
     "path_length", "time_to_goal", "min_clearance",
-    "steering_smoothness", "final_goal_distance", "steps",
+    "steering_smoothness", "final_goal_distance", "steps", "mean_speed",
 ]
 CSV_FIELDS = ["controller", "tier", "condition", "fault_type", "fault_severity",
-              "seed_idx", "trial_seed"] + METRIC_FIELDS
+              "seed_idx", "trial_seed", "artifact_fingerprint"] + METRIC_FIELDS
+
+
+def artifact_fingerprint() -> str:
+    """
+    A short hash of the trained files this run depends on (the detector,
+    the NSGA-II result, the ANN), based on their size and last-modified
+    time.
+
+    The runner can resume, which is fine as long as the models haven't
+    changed in between. If they have, the old rows were scored against a
+    different detector and mixing them with new ones gives you a results
+    file that quietly averages two different experiments. Stamping each row
+    with this hash makes that detectable.
+    """
+    import hashlib
+    parts = []
+    for path in (FAULT_DETECTOR_PATH, NSGA2_PATH, ANN_MODEL_PATH):
+        if os.path.exists(path):
+            st = os.stat(path)
+            parts.append(f"{os.path.basename(path)}:{st.st_mtime_ns}:{st.st_size}")
+        else:
+            parts.append(f"{os.path.basename(path)}:absent")
+    return hashlib.sha1("|".join(parts).encode()).hexdigest()[:12]
 
 
 def build_conditions():
@@ -116,37 +140,138 @@ def build_controllers() -> dict:
     return controllers
 
 
-def add_fault_aware_condition(controllers: dict) -> dict:
-    """Sec 6.2's 5th condition: wrap ONE controller (a fixed, documented
-    choice -- the NSGA-II FLC if available, else the hand-tuned FLC, matching
-    the blueprint's 'best-performing controller' guidance without requiring
-    a second full grid just to rank candidates) as fault-aware, so it can be
-    compared 1:1 against its own fault-blind row."""
+def select_best_controller(candidate_names, fingerprint: str) -> Optional[str]:
+    """
+    Work out which controller actually did best on the clean runs, so the
+    fault-aware comparison gets wrapped around the strongest one.
+
+    This used to just assume the NSGA-II controller was best, which turned
+    out not to be true, so the whole comparison was being built on one of
+    the weaker controllers. Reads the rows this run already wrote, so it
+    costs nothing extra and uses the same seeds everything else was scored
+    on. Ties go alphabetically so it stays reproducible.
+
+    Returns None if there's nothing to rank yet.
+    """
+    if not os.path.exists(FULL_TRIAL_CSV):
+        return None
+
+    wins: dict = {}
+    counts: dict = {}
+    with open(FULL_TRIAL_CSV, "r", newline="") as f:
+        for row in csv.DictReader(f):
+            if row.get("artifact_fingerprint") != fingerprint:
+                continue
+            if row["condition"] != "clean":
+                continue
+            name = row["controller"]
+            if name not in candidate_names:
+                continue
+            wins[name] = wins.get(name, 0) + (1 if row["success"] == "True" else 0)
+            counts[name] = counts.get(name, 0) + 1
+
+    if not counts:
+        return None
+
+    rates = {n: wins[n] / counts[n] for n in counts}
+    order = sorted(rates, key=lambda n: (-rates[n], n))   # rate desc, then name
+    best = order[0]
+    ranking = ", ".join(f"{n}={rates[n]:.3f}" for n in order)
+    print(f"Clean-condition ranking (pooled over tiers): {ranking}")
+    print(f"Best fault-blind controller by measured clean success: '{best}'.")
+    return best
+
+
+def add_fault_aware_condition(controllers: dict, best_name: str) -> dict:
+    """Sec 6.2's 5th condition: wrap the MEASURED best-performing controller
+    (see select_best_controller) as fault-aware, so it can be compared 1:1
+    against its own fault-blind row under identical seeds and faults."""
     if not os.path.exists(FAULT_DETECTOR_PATH):
         print(f"[skip] {FAULT_DETECTOR_PATH} not found -- run "
               f"experiments/train_fault_detector.py first.")
-        return controllers
+        return {}
+    if best_name not in controllers:
+        print(f"[skip] best controller '{best_name}' not in the controller set.")
+        return {}
 
-    best_name = "D_nsga2_flc" if "D_nsga2_flc" in controllers else "B_handtuned_flc"
     detector = FaultDetector.load(FAULT_DETECTOR_PATH)
     base = controllers[best_name]
-    controllers[best_name + FAULT_AWARE_SUFFIX] = FaultAwareController(base, detector)
     print(f"Added fault-aware condition wrapping '{best_name}'.")
-    return controllers
+    return {best_name + FAULT_AWARE_SUFFIX: FaultAwareController(base, detector)}
 
 
-def load_completed() -> set:
+def load_completed(current_fingerprint: str) -> set:
+    """Only counts a row as completed if it was written under the CURRENT
+    artifact fingerprint (see artifact_fingerprint() docstring)."""
     completed = set()
     if not os.path.exists(FULL_TRIAL_CSV):
         return completed
     with open(FULL_TRIAL_CSV, "r", newline="") as f:
         for row in csv.DictReader(f):
+            if row.get("artifact_fingerprint") != current_fingerprint:
+                continue
             completed.add((row["controller"], row["tier"], row["condition"], int(row["seed_idx"])))
     return completed
 
 
+def purge_stale_rows(current_fingerprint: str) -> int:
+    """
+    Clear out rows from earlier runs before writing any new ones.
+
+    The resume check already ignored old rows when deciding what still
+    needed running, but it left them sitting in the file, so every re-run
+    added another full copy of the results. At one point the file had 9,800
+    rows for 4,900 actual trials. The figures ended up averaging both copies
+    while the stats script read only one, which is how the same number
+    showed up three different ways.
+
+    Old rows can't be salvaged anyway since they were scored against
+    different models, so dropping them loses nothing.
+
+    Returns how many rows were dropped.
+    """
+    if not os.path.exists(FULL_TRIAL_CSV):
+        return 0
+
+    with open(FULL_TRIAL_CSV, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames != CSV_FIELDS:
+            return 0          # schema mismatch is handled by append_row
+        rows = list(reader)
+
+    keep = [r for r in rows if r.get("artifact_fingerprint") == current_fingerprint]
+    dropped = len(rows) - len(keep)
+    if dropped == 0:
+        return 0
+
+    stale = {}
+    for r in rows:
+        fp = r.get("artifact_fingerprint")
+        if fp != current_fingerprint:
+            stale[fp] = stale.get(fp, 0) + 1
+    detail = ", ".join(f"{fp}={n} rows" for fp, n in sorted(stale.items()))
+    print(f"Purging {dropped} stale row(s) from {FULL_TRIAL_CSV} ({detail}); "
+          f"keeping {len(keep)} row(s) at fingerprint {current_fingerprint}.")
+
+    with open(FULL_TRIAL_CSV, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+        w.writeheader()
+        w.writerows(keep)
+    return dropped
+
+
 def append_row(row: dict) -> None:
     exists = os.path.exists(FULL_TRIAL_CSV)
+    if exists:
+        with open(FULL_TRIAL_CSV, "r", newline="") as f:
+            existing_header = f.readline().strip().split(",")
+        if existing_header != CSV_FIELDS:
+            raise RuntimeError(
+                f"{FULL_TRIAL_CSV} has an outdated column schema (missing "
+                f"'artifact_fingerprint' or otherwise stale). Delete it and "
+                f"re-run for a clean, unambiguous result set -- silently "
+                f"appending mismatched columns would corrupt the CSV."
+            )
     os.makedirs(RESULTS_DIR, exist_ok=True)
     with open(FULL_TRIAL_CSV, "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
@@ -155,26 +280,13 @@ def append_row(row: dict) -> None:
         w.writerow(row)
 
 
-def main(n_seeds: int = N_SEEDS) -> None:
-    assert n_seeds >= 30, "Blueprint v2 / IEEE requirement: >=30 held-out seeds per cell."
-    controllers = build_controllers()
-    controllers = add_fault_aware_condition(controllers)
-    if not controllers:
-        raise RuntimeError("No controllers available.")
-
-    conditions = build_conditions()
-    completed = load_completed()
-
-    # Single source of truth (config.get_eval_trial_seeds) -- guarantees
-    # every controller (A/B/D/E/fault-aware) is scored on IDENTICAL held-out
-    # seeds, and that NSGA-II/ANN training code (which excludes these same
-    # seeds via config.sample_disjoint_seeds) never trains on an evaluation
-    # seed.
-    trial_seeds = get_eval_trial_seeds(n_seeds=n_seeds)
-
-    total = len(controllers) * len(TIERS) * len(conditions) * n_seeds
+def run_grid(controllers: dict, conditions: list, trial_seeds: list,
+             fingerprint: str, completed: set, label: str) -> int:
+    """Run every (controller, tier, condition, seed) cell not already
+    completed, appending one row each. Factored out of main() so the
+    fault-blind phase and the fault-aware phase share identical logic."""
+    total = len(controllers) * len(TIERS) * len(conditions) * len(trial_seeds)
     done = 0
-
     for cname, controller in controllers.items():
         for tier in TIERS:
             for cond_name, fault_type, sev_range in conditions:
@@ -200,6 +312,7 @@ def main(n_seeds: int = N_SEEDS) -> None:
                         "fault_type": fault_type or "", "fault_severity": (
                             sev_range[1] if sev_range else ""),
                         "seed_idx": seed_idx, "trial_seed": trial_seed,
+                        "artifact_fingerprint": fingerprint,
                         "success": m.success, "collision": m.collision,
                         "timeout": mode == "timeout",
                         "stuck_oscillation": mode == "stuck_oscillation",
@@ -207,14 +320,52 @@ def main(n_seeds: int = N_SEEDS) -> None:
                         "min_clearance": m.min_clearance,
                         "steering_smoothness": m.steering_smoothness,
                         "final_goal_distance": m.final_goal_distance, "steps": m.steps,
+                        "mean_speed": m.mean_speed,
                     }
                     append_row(row)
                     done += 1
                     if done % 25 == 0 or done == total:
-                        print(f"[{done}/{total}] {cname} | {tier} | {cond_name} | "
+                        print(f"[{label} {done}/{total}] {cname} | {tier} | {cond_name} | "
                               f"seed_idx={seed_idx} -> {mode}")
+    return done
 
-    print(f"\nDone: {done}/{total} trials in {FULL_TRIAL_CSV}")
+
+def main(n_seeds: int = N_SEEDS) -> None:
+    assert n_seeds >= 30, "Blueprint v2 / IEEE requirement: >=30 held-out seeds per cell."
+    controllers = build_controllers()
+    if not controllers:
+        raise RuntimeError("No controllers available.")
+
+    conditions = build_conditions()
+    fingerprint = artifact_fingerprint()
+    print(f"Artifact fingerprint for this run: {fingerprint}")
+    purge_stale_rows(fingerprint)
+    completed = load_completed(fingerprint)
+
+    # Single source of truth (config.get_eval_trial_seeds) -- guarantees
+    # every controller (A/B/D/E/fault-aware) is scored on IDENTICAL held-out
+    # seeds, and that NSGA-II/ANN training code (which excludes these same
+    # seeds via config.sample_disjoint_seeds) never trains on an evaluation
+    # seed.
+    trial_seeds = get_eval_trial_seeds(n_seeds=n_seeds)
+
+    # Phase 1: every fault-blind controller.
+    done = run_grid(controllers, conditions, trial_seeds, fingerprint,
+                    completed, label="fault-blind")
+
+    # Phase 2: wrap the controller that MEASURABLY performed best in the
+    # clean condition (not a hardcoded guess) and run it as the fault-aware
+    # 5th condition. Phase 1's rows are already on disk, so this ranking
+    # costs no extra simulation and uses the same held-out seeds.
+    best_name = select_best_controller(set(controllers), fingerprint)
+    if best_name is not None:
+        fault_aware = add_fault_aware_condition(controllers, best_name)
+        if fault_aware:
+            completed = load_completed(fingerprint)
+            done += run_grid(fault_aware, conditions, trial_seeds, fingerprint,
+                             completed, label="fault-aware")
+
+    print(f"\nDone: {done} trials in {FULL_TRIAL_CSV}")
 
 
 if __name__ == "__main__":

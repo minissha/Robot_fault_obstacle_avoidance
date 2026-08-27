@@ -1,0 +1,42 @@
+# Stage 2: noisy synthetic point-cloud perception, single embodiment
+# (2-finger gripper). Physics/reward identical to Stage 1 — only the
+# observation changes (privileged state -> noisy point cloud).
+
+env:
+  max_steps: 200
+  goal_radius: 0.06
+  success_hold_steps: 10
+  action_scale: 0.03
+  seed: 0
+
+perception:
+  n_points: 768
+  object_point_frac: 0.35
+  jitter_std: 0.004
+  dropout_frac: 0.10
+  occlusion_prob: 0.3
+  occlusion_frac: 0.20
+
+encoder:
+  embed_dim: 128
+
+ppo:
+  total_timesteps: 500000   # noisy-obs policy needs more samples than Stage 1
+  n_envs: 4
+  n_steps: 512
+  batch_size: 256
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.0
+  n_epochs: 10
+  eval_freq: 10000
+  checkpoint_dir: checkpoints/ppo_stage2
+  log_dir: logs/ppo_stage2
+
+bc:
+  epochs: 150
+  batch_size: 64
+  learning_rate: 0.001
+  val_split: 0.1

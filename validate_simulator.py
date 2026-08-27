@@ -46,6 +46,8 @@ from simulation_core import (
     RobotSimulator,
     cast_ray,
     get_sensor_readings,
+    ROBOT_SPEED,
+    FRONT_INDEX,
 )
 from controllers.baseline import BaselineController
 from controllers.fuzzy_handtuned import HandTunedFLC
@@ -60,8 +62,8 @@ class StraightController:
     def reset(self) -> None:
         return None
 
-    def predict(self, sensor_readings: np.ndarray) -> float:
-        return 0.0
+    def predict(self, observation: np.ndarray):
+        return 0.0, ROBOT_SPEED
 
 
 class FixedWorldSimulator(RobotSimulator):
@@ -207,13 +209,14 @@ def test_single_known_obstacle_geometry_and_controller() -> None:
         [obstacle],
     )
 
-    # The obstacle is deliberately outside the front ray; the front reading
-    # should therefore be the world-boundary distance, not obstacle distance.
+    # The obstacle is deliberately outside the straight-ahead ray; that
+    # reading should therefore be the world-boundary distance, not the
+    # obstacle distance.
     # The world-boundary intersection lies beyond SENSOR_RANGE, so the
     # documented ray-caster cap of 100.0 applies.
     expected_front_reading = 100.0
-    assert abs(raw[0] - expected_front_reading) < 1e-9, (
-        f"unexpected front-ray distance: {raw[0]:.6f} "
+    assert abs(raw[FRONT_INDEX] - expected_front_reading) < 1e-9, (
+        f"unexpected front-ray distance: {raw[FRONT_INDEX]:.6f} "
         f"(expected {expected_front_reading:.6f})"
     )
 

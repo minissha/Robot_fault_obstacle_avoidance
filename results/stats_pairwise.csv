@@ -1,5 +1,0 @@
-comparison,tier,condition,n_baseline,n_other,U,p_value,rank_biserial_effect_size,nan_free
-A_baseline vs B_handtuned_flc,dense,clean,50,50,1275.0,0.7023375005133071,-0.020000000000000018,True
-A_baseline vs B_handtuned_flc,sparse,clean,50,50,1375.0,0.16523205714391576,-0.10000000000000009,True
-A_baseline vs B_handtuned_flc_fault_aware,dense,clean,50,50,1250.0,1.0,0.0,True
-A_baseline vs B_handtuned_flc_fault_aware,sparse,clean,50,50,1325.0,0.4299066835417894,-0.06000000000000005,True

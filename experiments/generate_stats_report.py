@@ -25,7 +25,9 @@ import numpy as np
 import pandas as pd
 
 from config import FULL_TRIAL_CSV, RESULTS_DIR
-from experiments.statistics_utils import bootstrap_ci, mannwhitney_with_effect_size
+from experiments.statistics_utils import (
+    bootstrap_ci, load_canonical_trials, mannwhitney_with_effect_size,
+)
 
 
 def condition_group(cond: str) -> str:
@@ -33,9 +35,10 @@ def condition_group(cond: str) -> str:
 
 
 def main() -> None:
-    if not os.path.exists(FULL_TRIAL_CSV):
-        raise FileNotFoundError(f"{FULL_TRIAL_CSV} not found -- run experiments/run_full_experiment.py first.")
-    df = pd.read_csv(FULL_TRIAL_CSV)
+    # Go through the shared loader rather than reading the CSV directly, so
+    # this can't end up reporting a different run than the figures do.
+    df = load_canonical_trials(FULL_TRIAL_CSV)
+    fingerprint = df.attrs["artifact_fingerprint"]
     df["condition_group"] = df["condition"].apply(condition_group)
 
     controllers = sorted(df["controller"].unique())
@@ -103,7 +106,16 @@ def main() -> None:
     pairwise_df.to_csv(os.path.join(RESULTS_DIR, "stats_pairwise.csv"), index=False)
     clean_vs_faulty_df.to_csv(os.path.join(RESULTS_DIR, "stats_clean_vs_faulty.csv"), index=False)
 
-    lines = ["# Statistics Report", "", "## Success rate (mean, 95% bootstrap CI)", "",
+    # Say which run these numbers came from. Otherwise a stats table and a
+    # figure from two different runs look equally trustworthy.
+    lines = ["# Statistics Report", "",
+             f"Generated from `{os.path.relpath(FULL_TRIAL_CSV, RESULTS_DIR)}` "
+             f"at artifact fingerprint `{fingerprint}` "
+             f"({len(df)} trials, {df['controller'].nunique()} controllers, "
+             f"{df['seed_idx'].nunique()} seeds/cell).", "",
+             "Every number below traces to that single result set; the loader "
+             "refuses to run if the CSV mixes experiment runs.", "",
+             "## Success rate (mean, 95% bootstrap CI)", "",
              summary_df.round(3).to_markdown(index=False), "",
              "## Pairwise Mann-Whitney U vs A_baseline (clean condition, per tier)", "",
              pairwise_df.round(4).to_markdown(index=False), "",
@@ -113,9 +125,25 @@ def main() -> None:
     with open(report_path, "w") as f:
         f.write("\n".join(lines))
 
+    # Also dump everything as JSON so the write-up can pull numbers from one
+    # place instead of anyone re-typing them out of the markdown tables.
+    json_path = os.path.join(RESULTS_DIR, "stats_report.json")
+    with open(json_path, "w") as f:
+        json.dump({
+            "artifact_fingerprint": fingerprint,
+            "source_csv": os.path.basename(FULL_TRIAL_CSV),
+            "n_trials": int(len(df)),
+            "n_seeds_per_cell": int(df["seed_idx"].nunique()),
+            "summary": summary_df.to_dict("records"),
+            "pairwise_vs_baseline": pairwise_df.to_dict("records"),
+            "clean_vs_faulty": clean_vs_faulty_df.to_dict("records"),
+        }, f, indent=2, default=str)
+
     n_nan = int((~pairwise_df["nan_free"]).sum()) + int((~clean_vs_faulty_df["nan_free"]).sum())
     n_anomalies = int(clean_vs_faulty_df["faulty_outperforms_clean"].sum())
     print(f"Wrote {report_path}")
+    print(f"Wrote {json_path}")
+    print(f"Source: {FULL_TRIAL_CSV} @ fingerprint {fingerprint} ({len(df)} trials)")
     print(f"NaN cells across all pairwise stats: {n_nan}/{len(pairwise_df) + len(clean_vs_faulty_df)} "
           f"({'PASS -- statistical hygiene OK' if n_nan == 0 else 'FAIL -- investigate degenerate cells'})")
     print(f"Inverse-success anomalies (faulty success > clean success): {n_anomalies}/{len(clean_vs_faulty_df)} "

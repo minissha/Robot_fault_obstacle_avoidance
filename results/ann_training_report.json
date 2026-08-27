@@ -1,8 +1,10 @@
 {
-  "test_mae_degrees": 5.099935369269559,
-  "n_train_episodes": 56,
-  "n_val_episodes": 12,
-  "n_test_episodes": 12,
-  "n_train_rows": 5579,
-  "n_test_rows": 650
+  "test_mae_steering_degrees": 7.900173932830699,
+  "test_mae_speed": 0.6793284752587202,
+  "test_mae_mean": 4.289751204044709,
+  "n_train_episodes": 140,
+  "n_val_episodes": 30,
+  "n_test_episodes": 30,
+  "n_train_rows": 54548,
+  "n_test_rows": 9754
 }

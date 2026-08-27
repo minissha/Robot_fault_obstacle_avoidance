@@ -1,0 +1,30 @@
+# Stage 1: ground-truth state, single embodiment (2-finger gripper)
+
+env:
+  max_steps: 200
+  goal_radius: 0.06
+  success_hold_steps: 10
+  action_scale: 0.03
+  seed: 0
+
+ppo:
+  total_timesteps: 300000
+  n_envs: 4                 # parallel PyBullet DIRECT-mode envs
+  n_steps: 512               # per-env rollout length before update
+  batch_size: 256
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.0
+  n_epochs: 10
+  eval_freq: 10000
+  checkpoint_dir: checkpoints/ppo_stage1
+  log_dir: logs/ppo_stage1
+
+bc:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  hidden_size: 128
+  val_split: 0.1

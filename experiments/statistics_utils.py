@@ -14,10 +14,115 @@ original 15-seed runs produced NaN ANOVA/t-test cells silently).
 
 from __future__ import annotations
 
-from typing import Tuple
+import os
+from typing import Optional, Tuple
 
 import numpy as np
 from scipy import stats
+
+# These come back from the CSV as the strings "True"/"False", so they get
+# converted explicitly. Letting pandas guess breaks in an annoying way if a
+# single cell is ever blank.
+BOOL_FIELDS: Tuple[str, ...] = ("success", "collision", "timeout", "stuck_oscillation")
+
+TRIAL_KEY_FIELDS: Tuple[str, ...] = ("controller", "tier", "condition", "seed_idx")
+
+
+def load_canonical_trials(csv_path: str, expected_rows: Optional[int] = None):
+    """
+    Read results/full_trial_results.csv, or complain loudly enough that you
+    can't accidentally analyse a mess.
+
+    The results file used to end up with more than one run's worth of rows
+    in it, each scored against different models. The figures averaged them
+    together, the stats script read only one, and the same number came out
+    three different ways depending on where you looked.
+
+    So if there's more than one run in the file this raises instead of
+    quietly picking one. Picking one silently is how the problem happened in
+    the first place, and the right answer is to re-run cleanly rather than
+    guess which half to trust. Same for duplicated trials or a boolean
+    column with junk in it.
+
+    Pass expected_rows if you want it to also check the run finished.
+    """
+    import pandas as pd     # imported here so the rest of the module still
+                            # works if pandas isn't installed
+
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(
+            f"{csv_path} not found -- run experiments/run_full_experiment.py first."
+        )
+
+    df = pd.read_csv(csv_path)
+    if len(df) == 0:
+        raise ValueError(f"{csv_path} contains a header but no trials.")
+
+    if "artifact_fingerprint" not in df.columns:
+        raise ValueError(
+            f"{csv_path} predates artifact fingerprinting and cannot be verified "
+            f"as internally consistent. Delete it and re-run "
+            f"experiments/run_full_experiment.py."
+        )
+
+    fingerprints = df["artifact_fingerprint"].value_counts()
+    if len(fingerprints) > 1:
+        detail = "\n".join(f"    {fp}: {n} rows" for fp, n in fingerprints.items())
+        raise ValueError(
+            f"{csv_path} mixes {len(fingerprints)} experiment runs:\n{detail}\n"
+            f"Rows written under different fingerprints were scored against "
+            f"different trained artifacts (fault detector / NSGA-II result / ANN) "
+            f"and are NOT comparable. Delete the file and re-run "
+            f"experiments/run_full_experiment.py for one clean result set."
+        )
+
+    dupes = df.duplicated(subset=list(TRIAL_KEY_FIELDS), keep=False)
+    if bool(dupes.any()):
+        sample = (df.loc[dupes, list(TRIAL_KEY_FIELDS)]
+                    .drop_duplicates().head(3).to_dict("records"))
+        raise ValueError(
+            f"{csv_path} contains {int(dupes.sum())} duplicate trial rows "
+            f"(same controller/tier/condition/seed_idx), e.g. {sample}. "
+            f"Delete the file and re-run experiments/run_full_experiment.py."
+        )
+
+    for col in BOOL_FIELDS:
+        if col in df.columns:
+            df[col] = _to_bool(df[col])
+
+    if expected_rows is not None and len(df) != expected_rows:
+        raise ValueError(
+            f"{csv_path} holds {len(df)} trials but {expected_rows} were expected "
+            f"-- the run is incomplete or was interrupted. Re-run "
+            f"experiments/run_full_experiment.py (it resumes)."
+        )
+
+    df.attrs["artifact_fingerprint"] = str(fingerprints.index[0])
+    df.attrs["source_csv"] = csv_path
+    return df
+
+
+def _to_bool(series):
+    """
+    Turn a column of True/False (or 1/0) into actual booleans.
+
+    Anything else raises. A blank cell would otherwise quietly become True
+    and inflate a success rate, which is the sort of thing you'd never spot.
+    """
+    if series.dtype == bool:
+        return series
+    mapped = (series.astype(str)
+                    .str.strip()
+                    .str.lower()
+                    .map({"true": True, "false": False, "1": True, "0": False}))
+    if bool(mapped.isna().any()):
+        bad = series[mapped.isna()].unique()[:5]
+        raise ValueError(
+            f"Column '{series.name}' has {int(mapped.isna().sum())} value(s) that "
+            f"are neither true nor false, e.g. {list(bad)!r}. The CSV is corrupt; "
+            f"delete it and re-run experiments/run_full_experiment.py."
+        )
+    return mapped.astype(bool)
 
 
 def mannwhitney_with_effect_size(a: np.ndarray, b: np.ndarray) -> Tuple[float, float, float]:

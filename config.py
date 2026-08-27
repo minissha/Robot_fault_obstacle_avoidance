@@ -31,7 +31,13 @@ for _d in (RESULTS_DIR, FIGURES_DIR, DEMO_DIR):
 # --------------------------------------------------------------------------
 # Experiment grid (Blueprint v2 Sec 2.3 / 5.3: >=30 seeds)
 # --------------------------------------------------------------------------
-N_SEEDS: int = 50
+# 200 held-out seeds per cell, up from 50. At 50, a difference of about 20
+# percentage points was the smallest thing this grid could actually
+# distinguish, which is far coarser than the gaps between these controllers
+# -- so most of the comparisons were unfalsifiable either way. 200 brings
+# that down to around 10 points. Episodes take milliseconds; there was no
+# reason for it to be as low as it was.
+N_SEEDS: int = 200
 EVAL_SEED_BASE: int = 555
 TIERS = ("sparse", "dense")
 
@@ -52,9 +58,18 @@ NOISE_SPIKE_SEVERITIES = {
 # --------------------------------------------------------------------------
 # Fault-detection classifier (Blueprint v2 Sec 6.2)
 # --------------------------------------------------------------------------
-FAULT_DETECTOR_WINDOW: int = 12          # rolling window length in timesteps
+FAULT_DETECTOR_WINDOW: int = 20          # rolling window length in timesteps.
+                                          # Widened from 12 so the lag search in
+                                          # fault_detector.window_features has
+                                          # enough overlap to spot a stale ray
+                                          # replaying readings up to ~10 steps late.
 FAULT_DETECTOR_CLASSES = ("none", "dropout", "bias", "noise_spike", "stale")
-FAULT_DETECTOR_N_EPISODES: int = 160     # increased from 90 for better minority-class recall
+FAULT_DETECTOR_N_EPISODES: int = 600     # Each episode now yields one training
+                                          # row per ray per step rather than
+                                          # per-sensor-of-three, so 400 episodes
+                                          # produce comfortably more windows than
+                                          # the old 640 did. Chosen for sample
+                                          # count, not to hit a target metric.
 FAULT_DETECTOR_CONF_THRESHOLD: float = 0.6  # for confidence-gated control
 
 # --------------------------------------------------------------------------
